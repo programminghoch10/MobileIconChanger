@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Fake5GIcon</string>
+    <string name="xposed_description">Turn the 4G icon into 5G!</string>
+    <string-array name="scope">
+        <item>com.android.systemui</item>
+    </string-array>
+</resources>

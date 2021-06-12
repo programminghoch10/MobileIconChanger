@@ -1,0 +1,2 @@
+rootProject.name = "Fake5GIcon"
+include ':app'
