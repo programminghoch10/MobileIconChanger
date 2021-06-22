@@ -4,4 +4,9 @@
     <string-array name="scope">
         <item>com.android.systemui</item>
     </string-array>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <string name="xposed_inactive">XPosed is not available. \n
+        Please ensure it\'s working and is activated for this module. \n
+        If you think this is wrong, force close the app in the app settings or restart your device.</string>
 </resources>

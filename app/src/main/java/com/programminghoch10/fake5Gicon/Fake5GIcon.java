@@ -4,10 +4,13 @@ import android.content.res.XResources;
 import android.graphics.drawable.Drawable;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
+import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class Fake5GIcon implements IXposedHookInitPackageResources {
+public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookLoadPackage {
 	@Override
 	public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
 		if (!resparam.packageName.equals("com.android.systemui")) return;
@@ -29,5 +32,12 @@ public class Fake5GIcon implements IXposedHookInitPackageResources {
 		};
 		resparam.res.setReplacement("com.android.systemui", "drawable", "ic_4g_mobiledata", loader_5g);
 		resparam.res.setReplacement("com.android.systemui", "drawable", "ic_4g_plus_mobiledata", loader_5gplus);
+	}
+	
+	@Override
+	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+		if (lpparam.packageName.equals(BuildConfig.APPLICATION_ID)) {
+			XposedHelpers.setStaticBooleanField(XposedHelpers.findClass(SettingsActivity.class.getName(), lpparam.classLoader), "xposedActive", true);
+		}
 	}
 }
