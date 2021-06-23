@@ -6,12 +6,6 @@ import android.util.AttributeSet;
 import androidx.preference.CheckBoxPreference;
 
 public class RadioButtonPreference extends CheckBoxPreference {
-	
-	public RadioButtonPreference(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		setWidgetLayoutResource(R.layout.preference_widget_radiobutton);
-	}
-	
 	public RadioButtonPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		setWidgetLayoutResource(R.layout.preference_widget_radiobutton);

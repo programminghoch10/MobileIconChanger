@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.util.Base64;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 
 import java.io.ByteArrayOutputStream;
@@ -33,13 +34,11 @@ public class IconProvider {
 			if (!entry.getValue().getClass().equals(String.class)) continue;
 			Icon icon = new Icon();
 			icon.key = entry.getKey();
-			icon.name = entry.getKey().replace("ic_", "").replace("_mobiledata", "").replace("_", " ").toUpperCase();
+			icon.name = normalizeIconName(entry.getKey());
 			String drawableString = (String) entry.getValue();
-			Log.d(TAG, "collectSystemIcons: string=" + drawableString);
-			Bitmap bitmap = StringToBitMap((String) entry.getValue());
+			Bitmap bitmap = StringToBitMap(drawableString);
 			icon.drawable = new BitmapDrawable(context.getResources(), bitmap);
-			
-			Log.d(TAG, "collectSystemIcons: drawable " + icon.key + "=" + icon.drawable);
+			Log.d(TAG, "collectSystemIcons: adding system icon key=" + icon.key + " name=" + icon.name);
 			systemIcons.put(icon.key, icon);
 		}
 	}
@@ -52,10 +51,9 @@ public class IconProvider {
 		List<Field> iconFields = Arrays.asList(R.drawable.class.getFields());
 		iconFields = iconFields.stream().filter(s -> s.getName().startsWith("ic_") && s.getName().endsWith("_mobiledata")).collect(Collectors.toList());
 		for (Field iconField : iconFields) {
-			Log.d(TAG, "collectIcons: Field=" + iconField + " name=" + iconField.getName() + " type=" + iconField.getType());
+			//Log.d(TAG, "collectIcons: Field=" + iconField + " name=" + iconField.getName() + " type=" + iconField.getType());
 			int fieldValue = Resources.ID_NULL;
 			try {
-				Log.d(TAG, "collectIcons: value=" + iconField.getInt(context.getResources()));
 				fieldValue = iconField.getInt(context.getResources());
 			} catch (Exception ignored) {
 			}
@@ -66,14 +64,15 @@ public class IconProvider {
 					icon.key = iconField.getName();
 					icon.name = normalizeIconName(icon.key);
 					icon.drawable = drawable;
-					icons.put(icon.name, icon);
+					Log.d(TAG, "collectIcons: adding icon key=" + icon.key + " name=" + icon.name);
+					icons.put(icon.key, icon);
 				}
 			}
 		}
 	}
 	
 	private static String normalizeIconName(String name) {
-		return name.replace("ic_", "").replace("_mobiledata", "").replace("_", " ");
+		return name.replace("ic_", "").replace("_mobiledata", "").replace("_", " ").toUpperCase();
 	}
 	
 	public static String BitMapToString(Bitmap bitmap) {
@@ -98,6 +97,12 @@ public class IconProvider {
 		String key;
 		String name;
 		Drawable drawable;
+		
+		@NonNull
+		@Override
+		public String toString() {
+			return "Icon@" + hashCode() + "[key=" + key + ",name=" + name + ",drawable=" + drawable + "]";
+		}
 	}
 	
 }

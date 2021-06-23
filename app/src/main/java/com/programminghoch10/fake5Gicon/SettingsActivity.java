@@ -1,11 +1,15 @@
 package com.programminghoch10.fake5Gicon;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
@@ -71,16 +75,16 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			getPreferenceManager().setSharedPreferencesName(sharedPreferencesName);
 			setPreferencesFromResource(R.xml.root_preferences, rootKey);
 			
-			Log.d(TAG, "onCreatePreferences: system icons = " + IconProvider.systemIcons);
-			
 			//add icons
 			PreferenceCategory iconCategory = getPreferenceManager().findPreference("icons");
 			for (Map.Entry<String, IconProvider.Icon> icon : IconProvider.systemIcons.entrySet()) {
 				Log.d(TAG, "onCreatePreferences: adding icon " + icon.getKey());
-				Preference iconPreference = new Preference(getContext());
+				IconPreference iconPreference = new IconPreference(getContext());
 				iconPreference.setTitle(icon.getValue().name);
 				iconPreference.setKey(icon.getKey());
 				iconPreference.setIcon(icon.getValue().drawable);
+				iconPreference.setPreview(getPreview(icon.getKey()));
+				iconPreference.setFragment(IconFragment.class.getName());
 				iconCategory.addPreference(iconPreference);
 			}
 			
@@ -98,6 +102,37 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				}
 			});
 			((PreferenceCategory) getPreferenceManager().findPreference("systemui")).addPreference(restartSystemUIPreference);
+		}
+		
+		@Override
+		public void onResume() {
+			super.onResume();
+			Log.d(TAG, "onResume: updating previews");
+			updatePreviews();
+		}
+		
+		private void updatePreviews() {
+			for (Map.Entry<String, IconProvider.Icon> entry : IconProvider.systemIcons.entrySet()) {
+				IconPreference preference = findPreference(entry.getKey());
+				if (preference == null) continue;
+				preference.setPreview(getPreview(entry.getKey()));
+			}
+		}
+		
+		private Drawable getPreview(String key) {
+			if (key == null) return null;
+			SharedPreferences sharedPreferences = getContext().getSharedPreferences(sharedPreferencesName + "-" + key, MODE_PRIVATE);
+			String icon = null;
+			for (Map.Entry<String, ?> entry : sharedPreferences.getAll().entrySet()) {
+				if (!entry.getValue().getClass().equals(Boolean.class)) continue;
+				Map.Entry<String, Boolean> boolEntry = (Map.Entry<String, Boolean>) entry;
+				if (boolEntry.getValue().booleanValue()) icon = boolEntry.getKey();
+			}
+			if (icon == null) return null;
+			Log.d(TAG, "getPreview: key=" + key + " icon=" + icon);
+			int id = getContext().getResources().getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
+			if (id == Resources.ID_NULL) return null;
+			return ResourcesCompat.getDrawable(getContext().getResources(), id, getContext().getTheme());
 		}
 		
 		@Override
@@ -121,6 +156,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				RadioButtonPreference radioButton = new RadioButtonPreference(getContext());
 				radioButton.setKey(entry.getKey());
 				radioButton.setTitle(entry.getValue().name);
+				Log.d(TAG, "onCreatePreferences: add radio button key=" + entry.getKey() + " title=" + entry.getValue().name);
 				radioButton.setIcon(entry.getValue().drawable);
 				radioButton.setOnPreferenceChangeListener((preference, newValue) -> {
 					for (RadioButtonPreference radioButton1 : radioButtons) {
