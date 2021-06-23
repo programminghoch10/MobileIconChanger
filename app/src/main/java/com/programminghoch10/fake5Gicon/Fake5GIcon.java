@@ -3,6 +3,8 @@ package com.programminghoch10.fake5Gicon;
 import android.content.res.XResources;
 import android.graphics.drawable.Drawable;
 
+import java.util.zip.ZipFile;
+
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XposedBridge;
@@ -11,10 +13,23 @@ import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookLoadPackage {
+	private static final String TAG = Fake5GIcon.class.getName();
+	private static final String systemUI = "com.android.systemui";
+	
 	@Override
 	public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
-		if (!resparam.packageName.equals("com.android.systemui")) return;
+		if (!resparam.packageName.equals(systemUI)) return;
 		XposedBridge.log("Replacing 4G icon with 5G icon.");
+		
+		//gather available system icons for replacement
+		XResources resources = resparam.res;
+		String path = (String) XposedHelpers.findField(resources.getClass(), "mResDir").get(resources);
+		ZipFile zipFile = new ZipFile(path);
+		String[] list = zipFile.stream()
+				.filter(e -> e.getName().startsWith("res/drawable/ic_") && e.getName().endsWith("mobiledata.xml"))
+				.map(e -> e.getName().replace("res/drawable/", "").replace(".xml", ""))
+				.toArray(String[]::new);
+		XposedHelpers.setStaticObjectField(IconProvider.class, "systemIcons", list);
 		
 		Drawable icon_5g = resparam.res.getDrawable(resparam.res.getIdentifier("ic_5g_mobiledata", "drawable", "com.android.systemui"));
 		Drawable icon_5gplus = resparam.res.getDrawable(resparam.res.getIdentifier("ic_5g_plus_mobiledata", "drawable", "com.android.systemui"));
