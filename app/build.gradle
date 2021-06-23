@@ -7,7 +7,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.programminghoch10.fake5Gicon"
+        applicationId "com.programminghoch10.mobileiconchanger"
         minSdkVersion 29
         targetSdkVersion 30
         versionCode 1

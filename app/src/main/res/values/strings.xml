@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Fake5GIcon</string>
-    <string name="xposed_description">Turn the 4G icon into 5G!</string>
+    <string name="app_name">MobileIconChanger</string>
+    <string name="xposed_description">Change your mobile data icons to other ones! For example you can change the 3G/4G icons into 5G!</string>
     <string-array name="scope">
         <item>com.android.systemui</item>
     </string-array>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_settings">MobileIconChanger Settings</string>
 
     <string name="xposed_inactive">XPosed is not available. \n
         Please ensure it\'s working and is activated for this module. \n

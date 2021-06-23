@@ -1,4 +1,4 @@
-package com.programminghoch10.fake5Gicon;
+package com.programminghoch10.mobileiconchanger;
 
 import android.annotation.SuppressLint;
 import android.app.AndroidAppHelper;
@@ -30,8 +30,8 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookLoadPackage, IXposedHookZygoteInit {
-	private static final String TAG = Fake5GIcon.class.getName();
+public class MobileIconChanger implements IXposedHookInitPackageResources, IXposedHookLoadPackage, IXposedHookZygoteInit {
+	private static final String TAG = MobileIconChanger.class.getName();
 	private static final String systemUI = "com.android.systemui";
 	private static final Map<String, Drawable> systemIcons = new HashMap<>();
 	private static String modulePath = null;

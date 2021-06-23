@@ -1,4 +1,4 @@
-package com.programminghoch10.fake5Gicon;
+package com.programminghoch10.mobileiconchanger;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
@@ -24,7 +24,7 @@ import java.util.Map;
 public class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 	
 	public static final String sharedPreferencesName = "fake5GIcon";
-	private static final String TAG = "Fake5GIcon";
+	private static final String TAG = "MobileIconChanger";
 	private static boolean xposedActive = false;
 	private static Map<String, IconProvider.Icon> icons;
 	
@@ -171,7 +171,6 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 		@Override
 		public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
 			Log.d(TAG, "onCreatePreferences: rootKey=" + rootKey);
-			getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
 			getPreferenceManager().setSharedPreferencesName(sharedPreferencesName + "-" + rootKey);
 			PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(getContext());
 			Preference noneSelector = new Preference(getContext());

@@ -1,4 +1,4 @@
-package com.programminghoch10.fake5Gicon;
+package com.programminghoch10.mobileiconchanger;
 
 import com.crossbowffs.remotepreferences.RemotePreferenceProvider;
 
