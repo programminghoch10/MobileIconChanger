@@ -115,6 +115,12 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			updatePreferences();
 		}
 		
+		@Override
+		public void onStop() {
+			updatePreferences();
+			super.onStop();
+		}
+		
 		private void updatePreferences() {
 			for (Map.Entry<String, IconProvider.Icon> entry : IconProvider.systemIcons.entrySet()) {
 				IconPreference preference = findPreference(entry.getKey());

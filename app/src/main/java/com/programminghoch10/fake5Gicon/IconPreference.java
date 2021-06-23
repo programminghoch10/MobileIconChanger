@@ -34,6 +34,8 @@ public class IconPreference extends Preference {
 	
 	public void setValue(String value) {
 		this.value = value;
+		persistString(value);
+		notifyChanged();
 	}
 	
 	@Override
