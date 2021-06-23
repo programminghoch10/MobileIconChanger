@@ -89,6 +89,13 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				iconPreference.setFragment(IconFragment.class.getName());
 				iconCategory.addPreference(iconPreference);
 			}
+			if (IconProvider.systemIcons.size() == 0) {
+				Preference noIcon = new Preference(getContext());
+				noIcon.setTitle(R.string.title_noIcons);
+				noIcon.setSummary(R.string.summary_noIcons);
+				noIcon.setSelectable(false);
+				iconCategory.addPreference(noIcon);
+			}
 			
 			//add restart systemui
 			Preference restartSystemUIPreference = new Preference(getContext());

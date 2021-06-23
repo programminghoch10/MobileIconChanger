@@ -17,4 +17,6 @@
     <string name="title_systemui">Restart SystemUI</string>
     <string name="summary_systemui">Apply changes by restarting SystemUI.\n(root access needed)</string>
     <string name="title_none">None</string>
+    <string name="title_noIcons">No Icons found!</string>
+    <string name="summary_noIcons">This usually will fix itself upon reboot.\nJust reboot now. You got the time. C\'mon do it. Just do it.</string>
 </resources>
