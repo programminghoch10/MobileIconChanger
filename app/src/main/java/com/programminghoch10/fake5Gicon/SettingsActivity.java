@@ -82,6 +82,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				IconPreference iconPreference = new IconPreference(getContext());
 				iconPreference.setTitle(icon.getValue().name);
 				iconPreference.setKey(icon.getKey());
+				iconPreference.setIcon(icon.getValue().drawable);
 				iconPreference.setPersistent(true);
 				iconPreference.setPreview(getPreview(icon.getKey()));
 				iconPreference.setFragment(IconFragment.class.getName());
