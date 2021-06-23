@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
@@ -70,6 +71,19 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
 			getPreferenceManager().setSharedPreferencesName(sharedPreferencesName);
 			setPreferencesFromResource(R.xml.root_preferences, rootKey);
+			Preference restartSystemUIPreference = new Preference(getContext());
+			restartSystemUIPreference.setTitle("Restart SystemUI");
+			restartSystemUIPreference.setSummary("Apply changes by restarting SystemUI. (root needed)");
+			restartSystemUIPreference.setOnPreferenceClickListener(preference -> {
+				Log.i(TAG, "onClick: Trying to restart SystemUI");
+				try {
+					Runtime.getRuntime().exec("su -c killall com.android.systemui");
+					return true;
+				} catch (IOException ignored) {
+					return false;
+				}
+			});
+			((PreferenceCategory) getPreferenceManager().findPreference("systemui")).addPreference(restartSystemUIPreference);
 		}
 		
 		@Override

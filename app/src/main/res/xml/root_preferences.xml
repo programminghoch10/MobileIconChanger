@@ -5,4 +5,8 @@
         app:key="4g"
         app:title="4G Icon" />
 
+    <PreferenceCategory
+        app:key="systemui"
+        app:title="SystemUI" />
+
 </PreferenceScreen>
