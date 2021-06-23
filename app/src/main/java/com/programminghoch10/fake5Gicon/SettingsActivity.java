@@ -92,8 +92,8 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			
 			//add restart systemui
 			Preference restartSystemUIPreference = new Preference(getContext());
-			restartSystemUIPreference.setTitle("Restart SystemUI");
-			restartSystemUIPreference.setSummary("Apply changes by restarting SystemUI. (root needed)");
+			restartSystemUIPreference.setTitle(getString(R.string.title_systemui));
+			restartSystemUIPreference.setSummary(getString(R.string.summary_systemui));
 			restartSystemUIPreference.setOnPreferenceClickListener(preference -> {
 				Log.i(TAG, "onClick: Trying to restart SystemUI");
 				try {
@@ -126,7 +126,13 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				IconPreference preference = findPreference(entry.getKey());
 				if (preference == null) continue;
 				preference.setPreview(getPreview(entry.getKey()));
-				preference.setValue(getSelected(entry.getKey()));
+				String selectedKey = getSelected(entry.getKey());
+				if (selectedKey == null) continue;
+				preference.setValue(selectedKey);
+				IconProvider.Icon icon = icons.get(selectedKey);
+				IconProvider.Icon systemIcon = IconProvider.systemIcons.get(entry.getKey());
+				if (icon == null || systemIcon == null) continue;
+				preference.setSummary(String.format(getString(R.string.change_notice), systemIcon.name, icon.name));
 			}
 		}
 		
@@ -168,6 +174,18 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
 			getPreferenceManager().setSharedPreferencesName(sharedPreferencesName + "-" + rootKey);
 			PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(getContext());
+			Preference noneSelector = new Preference(getContext());
+			noneSelector.setTitle(getString(R.string.title_none));
+			noneSelector.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					for (RadioButtonPreference radioButton : radioButtons) {
+						radioButton.setChecked(false);
+					}
+					return false;
+				}
+			});
+			preferenceScreen.addPreference(noneSelector);
 			for (Map.Entry<String, IconProvider.Icon> entry : icons.entrySet()) {
 				RadioButtonPreference radioButton = new RadioButtonPreference(getContext());
 				radioButton.setKey(entry.getKey());

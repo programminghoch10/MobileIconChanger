@@ -1,15 +1,15 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
     <Preference
         app:selectable="false"
-        app:summary="Here you can select each icon and what to replace it with"
-        app:title="Icon Replacements" />
+        app:summary="@string/summary_replacements"
+        app:title="@string/title_replacements" />
 
     <PreferenceCategory
         app:key="icons"
-        app:title="Icons" />
+        app:title="@string/category_title_icons" />
 
     <PreferenceCategory
         app:key="systemui"
-        app:title="SystemUI" />
+        app:title="@string/category_title_systemui" />
 
 </PreferenceScreen>

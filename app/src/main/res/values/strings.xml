@@ -9,4 +9,12 @@
     <string name="xposed_inactive">XPosed is not available. \n
         Please ensure it\'s working and is activated for this module. \n
         If you think this is wrong, force close the app in the app settings or restart your device.</string>
+    <string name="change_notice">The %s icon will be replaced by the %s icon.</string>
+    <string name="title_replacements">Icon Replacements</string>
+    <string name="summary_replacements">Here you can select each icon and what to replace it with.</string>
+    <string name="category_title_icons">Icons</string>
+    <string name="category_title_systemui">SystemUI</string>
+    <string name="title_systemui">Restart SystemUI</string>
+    <string name="summary_systemui">Apply changes by restarting SystemUI.\n(root access needed)</string>
+    <string name="title_none">None</string>
 </resources>
