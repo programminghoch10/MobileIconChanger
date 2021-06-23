@@ -1,18 +1,21 @@
 package com.programminghoch10.fake5Gicon;
 
+import android.annotation.SuppressLint;
 import android.app.AndroidAppHelper;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.XResources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import com.crossbowffs.remotepreferences.RemotePreferences;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -28,10 +31,47 @@ public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookL
 	private static final String TAG = Fake5GIcon.class.getName();
 	private static final String systemUI = "com.android.systemui";
 	
+	private static final Map<String, Drawable> systemIcons = new HashMap<>();
+	
+	public static Bitmap drawableToBitmap(Drawable drawable) {
+		if (drawable == null) return null;
+		if (drawable instanceof BitmapDrawable) {
+			BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+			if (bitmapDrawable.getBitmap() != null) {
+				return bitmapDrawable.getBitmap();
+			}
+		}
+		Bitmap bitmap = null;
+		if (drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
+			bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
+		} else {
+			bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+		}
+		Canvas canvas = new Canvas(bitmap);
+		drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+		drawable.draw(canvas);
+		return bitmap;
+	}
+	
 	@Override
 	public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
 		if (!resparam.packageName.equals(systemUI)) return;
 		XposedBridge.log("Replacing 4G icon with 5G icon.");
+		
+		XResources resources = resparam.res;
+		String path = (String) XposedHelpers.findField(resources.getClass(), "mResDir").get(resources);
+		ZipFile zipFile = new ZipFile(path);
+		ZipEntry[] iconEntries = zipFile.stream()
+				.filter(e -> e.getName().startsWith("res/drawable/ic_") && e.getName().endsWith("mobiledata.xml"))
+				.toArray(ZipEntry[]::new);
+		Log.d(TAG, "handleInitPackageResources: systemicons=" + Arrays.toString(iconEntries));
+		systemIcons.clear();
+		for (ZipEntry entry : iconEntries) {
+			String key = entry.getName();
+			int drawableID = resources.getIdentifier(key.replace("res/drawable/", "").replace(".xml", ""), "drawable", systemUI);
+			Drawable drawable = resources.getDrawable(drawableID);
+			systemIcons.put(key, drawable);
+		}
 		
 		Drawable icon_5g = resparam.res.getDrawable(resparam.res.getIdentifier("ic_5g_mobiledata", "drawable", "com.android.systemui"));
 		Drawable icon_5gplus = resparam.res.getDrawable(resparam.res.getIdentifier("ic_5g_plus_mobiledata", "drawable", "com.android.systemui"));
@@ -61,6 +101,7 @@ public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookL
 		Log.d(TAG, "handleLoadPackage: hooking systemui");
 		
 		XposedHelpers.findAndHookMethod(systemUI + ".SystemUIService", lpparam.classLoader, "onCreate", new XC_MethodHook() {
+			@SuppressLint("ApplySharedPref")
 			@Override
 			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 				super.beforeHookedMethod(param);
@@ -84,14 +125,9 @@ public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookL
 				SharedPreferences.Editor editor = sharedPreferences.edit();
 				for (ZipEntry entry : iconEntries) {
 					String key = entry.getName().replace("res/drawable/", "").replace(".xml", "");
-					String icon = new BufferedReader(
-							new InputStreamReader(
-									zipFile.getInputStream(entry)
-							)).lines().collect(
-							Collectors.joining(
-									"\n"
-							)
-					);
+					Drawable drawable = systemIcons.get(entry.getName());
+					Bitmap bitmap = drawableToBitmap(drawable);
+					String icon = IconProvider.BitMapToString(bitmap);
 					editor.putString(key, icon);
 				}
 				editor.commit();
