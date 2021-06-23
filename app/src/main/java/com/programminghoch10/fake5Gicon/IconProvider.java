@@ -43,6 +43,19 @@ public class IconProvider {
 		}
 	}
 	
+	static void tintAllIcons(int color) {
+		for (Map.Entry<String, Icon> entry : icons.entrySet()) {
+			Drawable drawable = entry.getValue().drawable;
+			drawable.setTint(color);
+			entry.getValue().drawable = drawable;
+		}
+		for (Map.Entry<String, Icon> entry : systemIcons.entrySet()) {
+			Drawable drawable = entry.getValue().drawable;
+			drawable.setTint(color);
+			entry.getValue().drawable = drawable;
+		}
+	}
+	
 	static Map<String, Icon> getIcons() {
 		return new HashMap<>(icons);
 	}

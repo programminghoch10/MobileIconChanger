@@ -42,6 +42,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 		}
 		IconProvider.collectIcons(this);
 		IconProvider.collectSystemIcons(this);
+		IconProvider.tintAllIcons(getColor(R.color.iconTint));
 		icons = IconProvider.getIcons();
 		setContentView(R.layout.settings_activity);
 		if (savedInstanceState == null) {
