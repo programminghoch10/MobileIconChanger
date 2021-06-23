@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">MobileIconChanger</string>
-    <string name="xposed_description">Change your mobile data icons to other ones! For example you can change the 3G/4G icons into 5G!</string>
+    <string name="xposed_description">Change your mobile data icons! For example you can change the 3G/4G icons into 5G!</string>
     <string-array name="scope">
         <item>com.android.systemui</item>
     </string-array>
