@@ -127,6 +127,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				if (preference == null) continue;
 				preference.setPreview(getPreview(entry.getKey()));
 				String selectedKey = getSelected(entry.getKey());
+				preference.setSummary(null);
 				if (selectedKey == null) continue;
 				preference.setValue(selectedKey);
 				IconProvider.Icon icon = icons.get(selectedKey);
@@ -181,6 +182,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 					for (RadioButtonPreference radioButton : radioButtons) {
 						radioButton.setChecked(false);
 					}
+					getActivity().onBackPressed();
 					return false;
 				}
 			});
@@ -196,6 +198,10 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 						radioButton1.setChecked(false);
 					}
 					return true;
+				});
+				radioButton.setOnPreferenceClickListener(preference -> {
+					getActivity().onBackPressed();
+					return false;
 				});
 				radioButtons.add(radioButton);
 				preferenceScreen.addPreference(radioButton);
