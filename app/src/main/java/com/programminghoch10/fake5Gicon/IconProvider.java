@@ -25,7 +25,7 @@ public class IconProvider {
 	}
 	
 	// a list of replaceable system icons, to be overwritten with actual list by xposed
-	static String[] systemIcons = {};
+	static Map<String, Drawable> systemIcons = new HashMap<>();
 	
 	static Map<String, Icon> getIcons() {
 		return new HashMap<>(icons);

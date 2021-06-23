@@ -3,6 +3,8 @@ package com.programminghoch10.fake5Gicon;
 import android.content.res.XResources;
 import android.graphics.drawable.Drawable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipFile;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
@@ -25,11 +27,17 @@ public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookL
 		XResources resources = resparam.res;
 		String path = (String) XposedHelpers.findField(resources.getClass(), "mResDir").get(resources);
 		ZipFile zipFile = new ZipFile(path);
-		String[] list = zipFile.stream()
+		String[] iconList = zipFile.stream()
 				.filter(e -> e.getName().startsWith("res/drawable/ic_") && e.getName().endsWith("mobiledata.xml"))
 				.map(e -> e.getName().replace("res/drawable/", "").replace(".xml", ""))
 				.toArray(String[]::new);
-		XposedHelpers.setStaticObjectField(IconProvider.class, "systemIcons", list);
+		Map<String, Drawable> map = new HashMap<>();
+		for (String icon : iconList) {
+			int drawableID = resources.getIdentifier(icon, "drawable", systemUI);
+			Drawable drawable = resources.getDrawable(drawableID);
+			map.put(icon, drawable);
+		}
+		XposedHelpers.setStaticObjectField(IconProvider.class, "systemIcons", map);
 		
 		Drawable icon_5g = resparam.res.getDrawable(resparam.res.getIdentifier("ic_5g_mobiledata", "drawable", "com.android.systemui"));
 		Drawable icon_5gplus = resparam.res.getDrawable(resparam.res.getIdentifier("ic_5g_plus_mobiledata", "drawable", "com.android.systemui"));
