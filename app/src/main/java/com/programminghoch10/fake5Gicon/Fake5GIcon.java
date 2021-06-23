@@ -1,14 +1,24 @@
 package com.programminghoch10.fake5Gicon;
 
+import android.app.AndroidAppHelper;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.XResources;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.crossbowffs.remotepreferences.RemotePreferences;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
@@ -22,22 +32,6 @@ public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookL
 	public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
 		if (!resparam.packageName.equals(systemUI)) return;
 		XposedBridge.log("Replacing 4G icon with 5G icon.");
-		
-		//gather available system icons for replacement
-		XResources resources = resparam.res;
-		String path = (String) XposedHelpers.findField(resources.getClass(), "mResDir").get(resources);
-		ZipFile zipFile = new ZipFile(path);
-		String[] iconList = zipFile.stream()
-				.filter(e -> e.getName().startsWith("res/drawable/ic_") && e.getName().endsWith("mobiledata.xml"))
-				.map(e -> e.getName().replace("res/drawable/", "").replace(".xml", ""))
-				.toArray(String[]::new);
-		Map<String, Drawable> map = new HashMap<>();
-		for (String icon : iconList) {
-			int drawableID = resources.getIdentifier(icon, "drawable", systemUI);
-			Drawable drawable = resources.getDrawable(drawableID);
-			map.put(icon, drawable);
-		}
-		XposedHelpers.setStaticObjectField(IconProvider.class, "systemIcons", map);
 		
 		Drawable icon_5g = resparam.res.getDrawable(resparam.res.getIdentifier("ic_5g_mobiledata", "drawable", "com.android.systemui"));
 		Drawable icon_5gplus = resparam.res.getDrawable(resparam.res.getIdentifier("ic_5g_plus_mobiledata", "drawable", "com.android.systemui"));
@@ -62,5 +56,46 @@ public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookL
 		if (lpparam.packageName.equals(BuildConfig.APPLICATION_ID)) {
 			XposedHelpers.setStaticBooleanField(XposedHelpers.findClass(SettingsActivity.class.getName(), lpparam.classLoader), "xposedActive", true);
 		}
+		if (!lpparam.packageName.equals(systemUI)) return;
+		
+		Log.d(TAG, "handleLoadPackage: hooking systemui");
+		
+		XposedHelpers.findAndHookMethod(systemUI + ".SystemUIService", lpparam.classLoader, "onCreate", new XC_MethodHook() {
+			@Override
+			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+				super.beforeHookedMethod(param);
+				Log.d(TAG, "beforeHookedMethod: running systemui hook");
+				
+				//get sharedPreferences of module
+				Context context = AndroidAppHelper.currentApplication().createPackageContext(BuildConfig.APPLICATION_ID, Context.CONTEXT_IGNORE_SECURITY);
+				if (context == null) return;
+				SharedPreferences sharedPreferences = new RemotePreferences(context, BuildConfig.APPLICATION_ID + ".PreferencesProvider", "systemIcons", true);
+				if (sharedPreferences == null) return;
+				
+				//gather available system icons for replacement
+				String path = lpparam.appInfo.sourceDir;
+				ZipFile zipFile = new ZipFile(path);
+				ZipEntry[] iconEntries = zipFile.stream()
+						.filter(e -> e.getName().startsWith("res/drawable/ic_") && e.getName().endsWith("mobiledata.xml"))
+						.toArray(ZipEntry[]::new);
+				Log.d(TAG, "handleInitPackageResources: systemicons=" + Arrays.toString(iconEntries));
+				
+				//save icons in sharedPreferences
+				SharedPreferences.Editor editor = sharedPreferences.edit();
+				for (ZipEntry entry : iconEntries) {
+					String key = entry.getName().replace("res/drawable/", "").replace(".xml", "");
+					String icon = new BufferedReader(
+							new InputStreamReader(
+									zipFile.getInputStream(entry)
+							)).lines().collect(
+							Collectors.joining(
+									"\n"
+							)
+					);
+					editor.putString(key, icon);
+				}
+				editor.commit();
+			}
+		});
 	}
 }

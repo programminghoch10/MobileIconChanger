@@ -16,6 +16,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <provider
+            android:name=".PreferencesProvider"
+            android:authorities="com.programminghoch10.fake5Gicon.PreferencesProvider"
+            android:exported="true" />
 
         <meta-data
             android:name="xposedmodule"

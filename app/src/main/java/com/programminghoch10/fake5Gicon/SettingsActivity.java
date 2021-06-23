@@ -1,29 +1,27 @@
 package com.programminghoch10.fake5Gicon;
 
 import android.annotation.SuppressLint;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.util.Log;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 	
-	private static boolean xposedActive = false;
 	public static final String sharedPreferencesName = "fake5GIcon";
 	private static final String TAG = "Fake5GIcon";
+	private static boolean xposedActive = false;
 	private static Map<String, IconProvider.Icon> icons;
 	
 	@Override
@@ -39,6 +37,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			return;
 		}
 		IconProvider.collectIcons(this);
+		IconProvider.collectSystemIcons(this);
 		icons = IconProvider.getIcons();
 		setContentView(R.layout.settings_activity);
 		if (savedInstanceState == null) {
@@ -51,7 +50,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 	
 	@Override
 	public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
-		Log.d(TAG, "onPreferenceStartFragment: pref="+pref+" caller="+caller.getClass().getName());
+		Log.d(TAG, "onPreferenceStartFragment: pref=" + pref + " caller=" + caller.getClass().getName());
 		Fragment fragment = getSupportFragmentManager().getFragmentFactory().instantiate(getClassLoader(), pref.getFragment());
 		Bundle args = pref.getExtras();
 		args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, pref.getKey());
@@ -71,6 +70,21 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
 			getPreferenceManager().setSharedPreferencesName(sharedPreferencesName);
 			setPreferencesFromResource(R.xml.root_preferences, rootKey);
+			
+			Log.d(TAG, "onCreatePreferences: system icons = " + IconProvider.systemIcons);
+			
+			//add icons
+			PreferenceCategory iconCategory = getPreferenceManager().findPreference("icons");
+			for (Map.Entry<String, IconProvider.Icon> icon : IconProvider.systemIcons.entrySet()) {
+				Log.d(TAG, "onCreatePreferences: adding icon " + icon.getKey());
+				Preference iconPreference = new Preference(getContext());
+				iconPreference.setTitle(icon.getValue().name);
+				iconPreference.setKey(icon.getKey());
+				iconPreference.setIcon(icon.getValue().drawable);
+				iconCategory.addPreference(iconPreference);
+			}
+			
+			//add restart systemui
 			Preference restartSystemUIPreference = new Preference(getContext());
 			restartSystemUIPreference.setTitle("Restart SystemUI");
 			restartSystemUIPreference.setSummary("Apply changes by restarting SystemUI. (root needed)");
@@ -88,7 +102,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 		
 		@Override
 		public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
-			Log.d(TAG, "onPreferenceStartFragment: pref="+pref.getKey()+" caller="+caller.getClass().getName());
+			Log.d(TAG, "onPreferenceStartFragment: pref=" + pref.getKey() + " caller=" + caller.getClass().getName());
 			return false;
 		}
 	}
@@ -99,7 +113,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 		@SuppressLint("WorldReadableFiles")
 		@Override
 		public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-			Log.d(TAG, "onCreatePreferences: rootKey="+rootKey);
+			Log.d(TAG, "onCreatePreferences: rootKey=" + rootKey);
 			getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
 			getPreferenceManager().setSharedPreferencesName(sharedPreferencesName + "-" + rootKey);
 			PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(getContext());

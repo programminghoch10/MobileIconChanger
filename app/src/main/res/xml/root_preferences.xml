@@ -1,9 +1,12 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceScreen
-        app:fragment="com.programminghoch10.fake5Gicon.SettingsActivity$IconFragment"
-        app:icon="@drawable/ic_4g_mobiledata"
-        app:key="4g"
-        app:title="4G Icon" />
+    <Preference
+        app:selectable="false"
+        app:summary="Here you can select each icon and what to replace it with"
+        app:title="Icon Replacements" />
+
+    <PreferenceCategory
+        app:key="icons"
+        app:title="Icons" />
 
     <PreferenceCategory
         app:key="systemui"
