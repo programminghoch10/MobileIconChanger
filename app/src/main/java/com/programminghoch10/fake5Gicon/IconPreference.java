@@ -5,11 +5,12 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
+import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
-import androidx.preference.TwoStatePreference;
 
-public class IconPreference extends TwoStatePreference {
+public class IconPreference extends Preference {
 	ImageView imageView = null;
+	String value = null;
 	Drawable drawable = null;
 	
 	public IconPreference(Context context, AttributeSet attrs) {
@@ -25,6 +26,21 @@ public class IconPreference extends TwoStatePreference {
 		this.drawable = drawable;
 		if (imageView == null) return;
 		imageView.setImageDrawable(drawable);
+	}
+	
+	public String getValue() {
+		return value;
+	}
+	
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+	@Override
+	protected void onClick() {
+		super.onClick();
+		persistString(value);
+		notifyChanged();
 	}
 	
 	@Override

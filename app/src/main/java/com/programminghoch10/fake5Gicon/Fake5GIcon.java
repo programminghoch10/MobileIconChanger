@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.AndroidAppHelper;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.content.res.XModuleResources;
 import android.content.res.XResources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -21,17 +23,18 @@ import java.util.zip.ZipFile;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookLoadPackage {
+public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookLoadPackage, IXposedHookZygoteInit {
 	private static final String TAG = Fake5GIcon.class.getName();
 	private static final String systemUI = "com.android.systemui";
-	
 	private static final Map<String, Drawable> systemIcons = new HashMap<>();
+	private static String modulePath = null;
 	
 	public static Bitmap drawableToBitmap(Drawable drawable) {
 		if (drawable == null) return null;
@@ -53,10 +56,14 @@ public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookL
 		return bitmap;
 	}
 	
+	private static String normalizeZipFileName(String name) {
+		return name.replace("res/drawable/", "").replace(".xml", "");
+	}
+	
 	@Override
 	public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
 		if (!resparam.packageName.equals(systemUI)) return;
-		XposedBridge.log("Replacing 4G icon with 5G icon.");
+		Log.d(TAG, "handleInitPackageResources: ");
 		
 		XResources resources = resparam.res;
 		String path = (String) XposedHelpers.findField(resources.getClass(), "mResDir").get(resources);
@@ -68,27 +75,35 @@ public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookL
 		systemIcons.clear();
 		for (ZipEntry entry : iconEntries) {
 			String key = entry.getName();
-			int drawableID = resources.getIdentifier(key.replace("res/drawable/", "").replace(".xml", ""), "drawable", systemUI);
+			int drawableID = resources.getIdentifier(normalizeZipFileName(key), "drawable", systemUI);
 			Drawable drawable = resources.getDrawable(drawableID);
 			systemIcons.put(key, drawable);
 		}
 		
-		Drawable icon_5g = resparam.res.getDrawable(resparam.res.getIdentifier("ic_5g_mobiledata", "drawable", "com.android.systemui"));
-		Drawable icon_5gplus = resparam.res.getDrawable(resparam.res.getIdentifier("ic_5g_plus_mobiledata", "drawable", "com.android.systemui"));
-		XResources.DrawableLoader loader_5g = new XResources.DrawableLoader() {
-			@Override
-			public Drawable newDrawable(XResources res, int id) throws Throwable {
-				return icon_5g;
-			}
-		};
-		XResources.DrawableLoader loader_5gplus = new XResources.DrawableLoader() {
-			@Override
-			public Drawable newDrawable(XResources res, int id) throws Throwable {
-				return icon_5gplus;
-			}
-		};
-		resparam.res.setReplacement("com.android.systemui", "drawable", "ic_4g_mobiledata", loader_5g);
-		resparam.res.setReplacement("com.android.systemui", "drawable", "ic_4g_plus_mobiledata", loader_5gplus);
+		XSharedPreferences sharedPreferences = new XSharedPreferences(BuildConfig.APPLICATION_ID, SettingsActivity.sharedPreferencesName);
+		Log.d(TAG, "handleInitPackageResources: file url = " + sharedPreferences.getFile().getPath());
+		Log.d(TAG, "handleInitPackageResources: canread  = " + sharedPreferences.getFile().canRead());
+		if (!sharedPreferences.getFile().canRead()) return;
+		for (Map.Entry<String, Drawable> iconEntry : systemIcons.entrySet()) {
+			String key = normalizeZipFileName(iconEntry.getKey());
+			Log.d(TAG, "handleInitPackageResources: key=" + key);
+			String icon = sharedPreferences.getString(key, null);
+			if (icon == null) continue;
+			Log.d(TAG, "handleInitPackageResources: replacing " + key + " with " + icon);
+			XModuleResources moduleResources = XModuleResources.createInstance(modulePath, resparam.res);
+			resources.setReplacement(systemUI, "drawable", key, new XResources.DrawableLoader() {
+				@Override
+				public Drawable newDrawable(XResources res, int id) throws Throwable {
+					int resId = moduleResources.getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
+					if (resId == Resources.ID_NULL) return null;
+					Drawable drawable = moduleResources.getDrawable(resId);
+					
+					//drawable.setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
+					
+					return drawable;
+				}
+			});
+		}
 	}
 	
 	@Override
@@ -133,5 +148,11 @@ public class Fake5GIcon implements IXposedHookInitPackageResources, IXposedHookL
 				editor.commit();
 			}
 		});
+	}
+	
+	@Override
+	public void initZygote(StartupParam startupParam) throws Throwable {
+		modulePath = startupParam.modulePath;
+		Log.d(TAG, "initZygote: modulePath=" + modulePath);
 	}
 }

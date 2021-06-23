@@ -82,7 +82,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				IconPreference iconPreference = new IconPreference(getContext());
 				iconPreference.setTitle(icon.getValue().name);
 				iconPreference.setKey(icon.getKey());
-				iconPreference.setIcon(icon.getValue().drawable);
+				iconPreference.setPersistent(true);
 				iconPreference.setPreview(getPreview(icon.getKey()));
 				iconPreference.setFragment(IconFragment.class.getName());
 				iconCategory.addPreference(iconPreference);
@@ -102,24 +102,36 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				}
 			});
 			((PreferenceCategory) getPreferenceManager().findPreference("systemui")).addPreference(restartSystemUIPreference);
+			
+			//updatePreferences();
 		}
 		
 		@Override
 		public void onResume() {
 			super.onResume();
 			Log.d(TAG, "onResume: updating previews");
-			updatePreviews();
+			updatePreferences();
 		}
 		
-		private void updatePreviews() {
+		private void updatePreferences() {
 			for (Map.Entry<String, IconProvider.Icon> entry : IconProvider.systemIcons.entrySet()) {
 				IconPreference preference = findPreference(entry.getKey());
 				if (preference == null) continue;
 				preference.setPreview(getPreview(entry.getKey()));
+				preference.setValue(getSelected(entry.getKey()));
 			}
 		}
 		
 		private Drawable getPreview(String key) {
+			String icon = getSelected(key);
+			if (icon == null) return null;
+			Log.d(TAG, "getPreview: key=" + key + " icon=" + icon);
+			int id = getContext().getResources().getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
+			if (id == Resources.ID_NULL) return null;
+			return ResourcesCompat.getDrawable(getContext().getResources(), id, getContext().getTheme());
+		}
+		
+		private String getSelected(String key) {
 			if (key == null) return null;
 			SharedPreferences sharedPreferences = getContext().getSharedPreferences(sharedPreferencesName + "-" + key, MODE_PRIVATE);
 			String icon = null;
@@ -128,11 +140,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				Map.Entry<String, Boolean> boolEntry = (Map.Entry<String, Boolean>) entry;
 				if (boolEntry.getValue().booleanValue()) icon = boolEntry.getKey();
 			}
-			if (icon == null) return null;
-			Log.d(TAG, "getPreview: key=" + key + " icon=" + icon);
-			int id = getContext().getResources().getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
-			if (id == Resources.ID_NULL) return null;
-			return ResourcesCompat.getDrawable(getContext().getResources(), id, getContext().getTheme());
+			return icon;
 		}
 		
 		@Override
