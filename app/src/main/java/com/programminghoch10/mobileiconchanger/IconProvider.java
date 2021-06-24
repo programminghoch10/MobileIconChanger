@@ -16,31 +16,38 @@ import androidx.core.content.res.ResourcesCompat;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class IconProvider {
-	private static final Map<String, Icon> icons = new HashMap<>();
+	// a list of icons as replacements
+	private static final Map<String, Icon> icons = new TreeMap<>();
 	private static final String TAG = "IconProvider";
-	// a list of replaceable system icons, to be overwritten with actual list by xposed
-	static Map<String, Icon> systemIcons = new HashMap<>();
+	// a list of replaceable system icons
+	private final static Map<String, Icon> systemIcons = new TreeMap<>();
 	
-	static void collectSystemIcons(Context context) {
+	private static void collectSystemIcons(Context context) {
 		SharedPreferences sharedPreferences = context.getSharedPreferences("systemIcons", Context.MODE_PRIVATE);
 		systemIcons.clear();
 		for (Map.Entry<String, ?> entry : sharedPreferences.getAll().entrySet()) {
 			if (!entry.getValue().getClass().equals(String.class)) continue;
 			Icon icon = new Icon();
 			icon.key = entry.getKey();
-			icon.name = normalizeIconName(entry.getKey());
+			applyIconSystemMetaData(icon);
 			String drawableString = (String) entry.getValue();
 			Bitmap bitmap = StringToBitMap(drawableString);
 			icon.drawable = new BitmapDrawable(context.getResources(), bitmap);
 			Log.d(TAG, "collectSystemIcons: adding system icon key=" + icon.key + " name=" + icon.name);
 			systemIcons.put(icon.key, icon);
 		}
+	}
+	
+	private static void applyIconSystemMetaData(Icon icon) {
+		icon.key = "system_mobiledata_" + icon.key.replace("ic_", "").replace("_mobiledata", "");
+		icon.name = icon.key.replace("system_mobiledata_", "").replace("_", " ").toUpperCase();
+		icon.category = "SYSTEM";
 	}
 	
 	static void tintAllIcons(int color) {
@@ -57,12 +64,17 @@ public class IconProvider {
 	}
 	
 	static Map<String, Icon> getIcons() {
-		return new HashMap<>(icons);
+		return new TreeMap<>(icons);
+	}
+	
+	static Map<String, Icon> getSystemIcons() {
+		return new TreeMap<>(systemIcons);
 	}
 	
 	static void collectIcons(Context context) {
+		collectSystemIcons(context);
 		List<Field> iconFields = Arrays.asList(R.drawable.class.getFields());
-		iconFields = iconFields.stream().filter(s -> s.getName().startsWith("ic_") && s.getName().endsWith("_mobiledata")).collect(Collectors.toList());
+		iconFields = iconFields.stream().filter(s -> s.getName().contains("_mobiledata_")).collect(Collectors.toList());
 		for (Field iconField : iconFields) {
 			//Log.d(TAG, "collectIcons: Field=" + iconField + " name=" + iconField.getName() + " type=" + iconField.getType());
 			int fieldValue = Resources.ID_NULL;
@@ -75,17 +87,23 @@ public class IconProvider {
 				if (drawable != null) {
 					Icon icon = new Icon();
 					icon.key = iconField.getName();
-					icon.name = normalizeIconName(icon.key);
+					applyIconMetaData(icon);
 					icon.drawable = drawable;
 					Log.d(TAG, "collectIcons: adding icon key=" + icon.key + " name=" + icon.name);
 					icons.put(icon.key, icon);
 				}
 			}
 		}
+		for (Map.Entry<String, Icon> entry : systemIcons.entrySet()) {
+			icons.put(entry.getKey(), entry.getValue());
+			Log.d(TAG, "collectIcons: adding system icon key=" + entry.getValue().key + " name=" + entry.getValue().name);
+		}
 	}
 	
-	private static String normalizeIconName(String name) {
-		return name.replace("ic_", "").replace("_mobiledata", "").replace("_", " ").toUpperCase();
+	private static void applyIconMetaData(Icon icon) {
+		String[] separated = icon.key.split("_mobiledata_");
+		icon.name = separated[1].replace("_", " ").toUpperCase();
+		icon.category = separated[0].replace("_", " ").toUpperCase();
 	}
 	
 	public static String BitMapToString(Bitmap bitmap) {
@@ -109,12 +127,13 @@ public class IconProvider {
 	static class Icon {
 		String key;
 		String name;
+		String category;
 		Drawable drawable;
 		
 		@NonNull
 		@Override
 		public String toString() {
-			return "Icon@" + hashCode() + "[key=" + key + ",name=" + name + ",drawable=" + drawable + "]";
+			return "Icon@" + hashCode() + "[key=" + key + ",name=" + name + ",category=" + category + ",drawable=" + drawable + "]";
 		}
 	}
 	

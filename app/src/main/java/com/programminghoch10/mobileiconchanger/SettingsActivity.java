@@ -1,6 +1,7 @@
 package com.programminghoch10.mobileiconchanger;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -20,13 +21,13 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 	
 	public static final String sharedPreferencesName = "fake5GIcon";
 	private static final String TAG = "MobileIconChanger";
 	private static boolean xposedActive = false;
-	private static Map<String, IconProvider.Icon> icons;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +42,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			return;
 		}
 		IconProvider.collectIcons(this);
-		IconProvider.collectSystemIcons(this);
 		IconProvider.tintAllIcons(getColor(R.color.iconTint));
-		icons = IconProvider.getIcons();
 		setContentView(R.layout.settings_activity);
 		if (savedInstanceState == null) {
 			getSupportFragmentManager()
@@ -78,18 +77,18 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			
 			//add icons
 			PreferenceCategory iconCategory = getPreferenceManager().findPreference("icons");
-			for (Map.Entry<String, IconProvider.Icon> icon : IconProvider.systemIcons.entrySet()) {
+			for (Map.Entry<String, IconProvider.Icon> icon : IconProvider.getSystemIcons().entrySet()) {
 				Log.d(TAG, "onCreatePreferences: adding icon " + icon.getKey());
 				IconPreference iconPreference = new IconPreference(getContext());
 				iconPreference.setTitle(icon.getValue().name);
 				iconPreference.setKey(icon.getKey());
 				iconPreference.setIcon(icon.getValue().drawable);
 				iconPreference.setPersistent(true);
-				iconPreference.setPreview(getPreview(icon.getKey()));
+				iconPreference.setPreview(getDrawableFromString(icon.getKey()));
 				iconPreference.setFragment(IconFragment.class.getName());
 				iconCategory.addPreference(iconPreference);
 			}
-			if (IconProvider.systemIcons.size() == 0) {
+			if (IconProvider.getSystemIcons().size() == 0) {
 				Preference noIcon = new Preference(getContext());
 				noIcon.setTitle(R.string.title_noIcons);
 				noIcon.setSummary(R.string.summary_noIcons);
@@ -129,27 +128,28 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 		}
 		
 		private void updatePreferences() {
-			for (Map.Entry<String, IconProvider.Icon> entry : IconProvider.systemIcons.entrySet()) {
+			for (Map.Entry<String, IconProvider.Icon> entry : IconProvider.getSystemIcons().entrySet()) {
 				IconPreference preference = findPreference(entry.getKey());
 				if (preference == null) continue;
-				preference.setPreview(getPreview(entry.getKey()));
+				preference.setPreview(getDrawableFromString(entry.getKey()));
 				String selectedKey = getSelected(entry.getKey());
 				preference.setSummary(null);
-				if (selectedKey == null) continue;
 				preference.setValue(selectedKey);
-				IconProvider.Icon icon = icons.get(selectedKey);
-				IconProvider.Icon systemIcon = IconProvider.systemIcons.get(entry.getKey());
+				if (selectedKey == null) continue;
+				IconProvider.Icon icon = IconProvider.getIcons().get(selectedKey);
+				IconProvider.Icon systemIcon = IconProvider.getSystemIcons().get(entry.getKey());
 				if (icon == null || systemIcon == null) continue;
 				preference.setSummary(String.format(getString(R.string.change_notice), systemIcon.name, icon.name));
 			}
 		}
 		
-		private Drawable getPreview(String key) {
+		private Drawable getDrawableFromString(String key) {
 			String icon = getSelected(key);
 			if (icon == null) return null;
-			Log.d(TAG, "getPreview: key=" + key + " icon=" + icon);
+			if (icon.startsWith("system_")) return IconProvider.getSystemIcons().get(icon).drawable;
 			int id = getContext().getResources().getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
 			if (id == Resources.ID_NULL) return null;
+			Log.d(TAG, "getPreview: generated preview for key=" + key + " icon=" + icon);
 			return ResourcesCompat.getDrawable(getContext().getResources(), id, getContext().getTheme());
 		}
 		
@@ -160,7 +160,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			for (Map.Entry<String, ?> entry : sharedPreferences.getAll().entrySet()) {
 				if (!entry.getValue().getClass().equals(Boolean.class)) continue;
 				Map.Entry<String, Boolean> boolEntry = (Map.Entry<String, Boolean>) entry;
-				if (boolEntry.getValue().booleanValue()) icon = boolEntry.getKey();
+				if (boolEntry.getValue()) icon = boolEntry.getKey();
 			}
 			return icon;
 		}
@@ -175,14 +175,18 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 	public static class IconFragment extends PreferenceFragmentCompat {
 		private final List<RadioButtonPreference> radioButtons = new LinkedList<>();
 		
-		@SuppressLint("WorldReadableFiles")
 		@Override
 		public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
 			Log.d(TAG, "onCreatePreferences: rootKey=" + rootKey);
+			Context context = getContext();
+			assert context != null;
 			getPreferenceManager().setSharedPreferencesName(sharedPreferencesName + "-" + rootKey);
-			PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(getContext());
-			Preference noneSelector = new Preference(getContext());
+			PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(context);
+			
+			//setup back button
+			Preference noneSelector = new Preference(context);
 			noneSelector.setTitle(getString(R.string.title_none));
+			noneSelector.setSummary(R.string.summary_none);
 			noneSelector.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 				@Override
 				public boolean onPreferenceClick(Preference preference) {
@@ -194,11 +198,28 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				}
 			});
 			preferenceScreen.addPreference(noneSelector);
-			for (Map.Entry<String, IconProvider.Icon> entry : icons.entrySet()) {
-				RadioButtonPreference radioButton = new RadioButtonPreference(getContext());
+			
+			//setup categories
+			Map<String, PreferenceCategory> categoryMap = new TreeMap<>();
+			for (Map.Entry<String, IconProvider.Icon> entry : IconProvider.getIcons().entrySet()) {
+				String category = entry.getValue().category;
+				if (!categoryMap.containsKey(category)) {
+					PreferenceCategory preferenceCategory = new PreferenceCategory(context);
+					preferenceCategory.setTitle(category);
+					preferenceCategory.setInitialExpandedChildrenCount(0);
+					categoryMap.put(category, preferenceCategory);
+					preferenceScreen.addPreference(preferenceCategory);
+					Log.d(TAG, "onCreatePreferences: created category " + category);
+				}
+			}
+			if (categoryMap.size() == 0) throw new IllegalStateException("no categories setup");
+			
+			// iterate over icons creating radiobuttons and sorting into categories
+			for (Map.Entry<String, IconProvider.Icon> entry : IconProvider.getIcons().entrySet()) {
+				RadioButtonPreference radioButton = new RadioButtonPreference(context);
 				radioButton.setKey(entry.getKey());
 				radioButton.setTitle(entry.getValue().name);
-				Log.d(TAG, "onCreatePreferences: add radio button key=" + entry.getKey() + " title=" + entry.getValue().name);
+				Log.d(TAG, "onCreatePreferences: add radio button key=" + entry.getKey() + " icon=" + entry.getValue());
 				radioButton.setIcon(entry.getValue().drawable);
 				radioButton.setOnPreferenceChangeListener((preference, newValue) -> {
 					for (RadioButtonPreference radioButton1 : radioButtons) {
@@ -211,8 +232,13 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 					return false;
 				});
 				radioButtons.add(radioButton);
-				preferenceScreen.addPreference(radioButton);
+				PreferenceCategory category = categoryMap.get(entry.getValue().category);
+				category.addPreference(radioButton);
+				if (radioButton.isChecked()) {
+					category.setInitialExpandedChildrenCount(Integer.MAX_VALUE);
+				}
 			}
+			
 			setPreferenceScreen(preferenceScreen);
 		}
 	}

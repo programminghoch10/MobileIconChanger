@@ -60,6 +60,11 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 		return name.replace("res/drawable/", "").replace(".xml", "");
 	}
 	
+	private static String getResourceNameForIcon(String icon) {
+		if (!icon.startsWith("system_mobiledata_")) return null;
+		return "ic_" + icon.replace("system_mobiledata_", "") + "_mobiledata";
+	}
+	
 	@Override
 	public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
 		if (!resparam.packageName.equals(systemUI)) return;
@@ -84,19 +89,34 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 		Log.d(TAG, "handleInitPackageResources: file url = " + sharedPreferences.getFile().getPath());
 		Log.d(TAG, "handleInitPackageResources: canread  = " + sharedPreferences.getFile().canRead());
 		if (!sharedPreferences.getFile().canRead()) return;
-		for (Map.Entry<String, Drawable> iconEntry : systemIcons.entrySet()) {
-			String key = normalizeZipFileName(iconEntry.getKey());
+		Log.d(TAG, "handleInitPackageResources: entryset=" + sharedPreferences.getAll().size());
+		for (Map.Entry<String, ?> entry : sharedPreferences.getAll().entrySet()) {
+			Log.d(TAG, "handleInitPackageResources: entry " + entry.getKey() + " has value type " + entry.getValue().getClass());
+			if (!entry.getValue().getClass().equals(String.class)) continue;
+			Map.Entry<String, String> iconEntry = (Map.Entry<String, String>) entry;
+			String key = getResourceNameForIcon(iconEntry.getKey());
 			Log.d(TAG, "handleInitPackageResources: key=" + key);
-			String icon = sharedPreferences.getString(key, null);
+			if (key == null) continue;
+			String icon = (String) entry.getValue();
+			String iconIdentifier = getResourceNameForIcon((String) entry.getValue());
 			if (icon == null) continue;
 			Log.d(TAG, "handleInitPackageResources: replacing " + key + " with " + icon);
 			XModuleResources moduleResources = XModuleResources.createInstance(modulePath, resparam.res);
 			resources.setReplacement(systemUI, "drawable", key, new XResources.DrawableLoader() {
 				@Override
 				public Drawable newDrawable(XResources res, int id) throws Throwable {
-					int resId = moduleResources.getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
-					if (resId == Resources.ID_NULL) return null;
-					Drawable drawable = moduleResources.getDrawable(resId);
+					Drawable drawable = null;
+					if (icon.startsWith("system_")) {
+						Log.d(TAG, "handleInitPackageResources: replacing " + key + " with system " + iconIdentifier);
+						int resId = resources.getIdentifier(iconIdentifier, "drawable", systemUI);
+						if (resId == Resources.ID_NULL) return null;
+						drawable = resources.getDrawable(resId);
+					} else {
+						Log.d(TAG, "handleInitPackageResources: replacing " + key + " with module " + icon);
+						int resId = moduleResources.getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
+						if (resId == Resources.ID_NULL) return null;
+						drawable = moduleResources.getDrawable(resId);
+					}
 					
 					//drawable.setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
 					
@@ -139,7 +159,7 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 				//save icons in sharedPreferences
 				SharedPreferences.Editor editor = sharedPreferences.edit();
 				for (ZipEntry entry : iconEntries) {
-					String key = entry.getName().replace("res/drawable/", "").replace(".xml", "");
+					String key = normalizeZipFileName(entry.getName());
 					Drawable drawable = systemIcons.get(entry.getName());
 					Bitmap bitmap = drawableToBitmap(drawable);
 					String icon = IconProvider.BitMapToString(bitmap);
