@@ -143,7 +143,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				}
 				IconProvider.Icon icon = IconProvider.getIcons().get(selectedKey);
 				if (icon == null) continue;
-				preference.setSummary(String.format(getString(R.string.change_notice), systemIcon.name, icon.name));
+				preference.setSummary(String.format(getString(R.string.change_notice), systemIcon.name, icon.category, icon.name));
 			}
 		}
 		
