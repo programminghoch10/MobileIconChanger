@@ -1,14 +1,15 @@
-# [MobileIconChanger](https://github.com/programminghoch10/MobileIconChanger)
+# MobileIconChanger
 Change your mobile data icons! For example you can change the 3G/4G icons into 5G!
 
-![Logo](logo.png)
+![Logo Custom 5G](logo.png)
 
-This module enables you to replace any of the mobile data icons with any other mobile data icon.
+This module enables you to replace any of the mobile data icons with any other mobile data icon, from you system, other android versions and even some custom ones.
+
+![Screenshot 5G](screenshot_5g.png)
+![Screenshot Custom 6G](screenshot_custom_6g.png)
 
 This module contains local copies of all mobile data icons available in `LineageOS 18.1` / `Android 11`. 
 Although before `Android 10` a `5G` icon was not included in the OS, using one is possible with this module.
-This has been developed and tested on `LineageOS 17.1`, 
-but should work on any Android `>= 8.1`.
 
 ## Inspiration
 Well there sadly is a thing called "Wish.com".
@@ -29,9 +30,21 @@ Well it all kinda became a meme so here we go.
 There is also the Magisk module [Fake_5G_icon](https://github.com/E7KMbb/Fake_5G_icon), but I **do not** recommended using it, because live swapping stuff is a job for XPosed and not for Magisk.
 Using this Magisk module has a much higher probability of breaking stuff in wrong ways and it may also prevent other mods from working properly.
 
+## Compatibility
+
+This mod is very universal and thus should work on most devices.
+It has been developed and tested on `LineageOS 17.1` using `LSPosed`.
+
+Requirements:
+- `Android 8.1` (`SDK 27`) or higher
+- An working XPosed framework 
+  ([`EdXposed`](https://github.com/ElderDrivers/EdXposed)
+  /[`LSPosed`](https://github.com/LSPosed/LSPosed))
+  with API level `93` or higher
+
 ## Installation
 
-1. Install the module on a system with a running XPosed framework with API version `>=93`.
+1. Install the module on a system which furfills the [module requirements](#compatibility).
 1. Activate the resource hooks within your XPosed framework manager.
 1. Activate the module. The package `SystemUI` should automatically be selected.
 1. Restart your phone.  
@@ -73,6 +86,9 @@ You will need to look yourself, which of the icons are used.
 Since this module hard-relinks the icon resources, a `SystemUI` restart is necessary to apply changes. 
 Conveniently there is a button for that right at the bottom. 
 You will need to give the app root access for this operation.
+
+![Screenshot Icon Overview](screenshot_icon_overview.png)
+![Screenshot Icon Selector](screenshot_icon_selector.png)
 
 ## Thank me
 
