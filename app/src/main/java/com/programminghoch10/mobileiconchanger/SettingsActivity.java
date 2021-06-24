@@ -188,6 +188,14 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			getPreferenceManager().setSharedPreferencesName(sharedPreferencesName + "-" + rootKey);
 			PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(context);
 			
+			//setup change icon notice
+			String iconName = IconProvider.getSystemIcons().get(rootKey).name;
+			Preference iconNotice = new Preference(context);
+			iconNotice.setTitle(String.format(getString(R.string.title_iconNotice), iconName));
+			iconNotice.setSummary(String.format(getString(R.string.summary_iconNotice), iconName));
+			iconNotice.setSelectable(false);
+			preferenceScreen.addPreference(iconNotice);
+			
 			//setup none button
 			RadioButtonPreference noneSelector = new RadioButtonPreference(context);
 			noneSelector.setTitle(getString(R.string.title_none));
