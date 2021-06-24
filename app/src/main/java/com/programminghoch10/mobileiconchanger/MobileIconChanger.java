@@ -9,7 +9,9 @@ import android.content.res.XModuleResources;
 import android.content.res.XResources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
@@ -107,6 +109,7 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 			resources.setReplacement(systemUI, "drawable", key, new XResources.DrawableLoader() {
 				@Override
 				public Drawable newDrawable(XResources res, int id) throws Throwable {
+					if (icon.equals("hide")) return new ColorDrawable(Color.TRANSPARENT);
 					Drawable drawable = null;
 					if (icon.startsWith("system_")) {
 						int resId = resources.getIdentifier(iconIdentifier, "drawable", systemUI);

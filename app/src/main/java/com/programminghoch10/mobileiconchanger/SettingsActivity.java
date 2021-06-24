@@ -136,9 +136,13 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				preference.setSummary(null);
 				preference.setValue(selectedKey);
 				if (selectedKey == null) continue;
-				IconProvider.Icon icon = IconProvider.getIcons().get(selectedKey);
 				IconProvider.Icon systemIcon = IconProvider.getSystemIcons().get(entry.getKey());
-				if (icon == null || systemIcon == null) continue;
+				if (systemIcon == null) continue;
+				if (selectedKey.equals("hide")) {
+					preference.setSummary(String.format(getString(R.string.hidden_notice), systemIcon.name));
+				}
+				IconProvider.Icon icon = IconProvider.getIcons().get(selectedKey);
+				if (icon == null) continue;
 				preference.setSummary(String.format(getString(R.string.change_notice), systemIcon.name, icon.name));
 			}
 		}
@@ -147,6 +151,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			String icon = getSelected(key);
 			if (icon == null) return null;
 			if (icon.startsWith("system_")) return IconProvider.getSystemIcons().get(icon).drawable;
+			if (icon.equals("hide")) return null;
 			int id = getContext().getResources().getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
 			if (id == Resources.ID_NULL) return null;
 			Log.d(TAG, "getPreview: generated preview for key=" + key + " icon=" + icon);
@@ -183,7 +188,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			getPreferenceManager().setSharedPreferencesName(sharedPreferencesName + "-" + rootKey);
 			PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(context);
 			
-			//setup back button
+			//setup none button
 			Preference noneSelector = new Preference(context);
 			noneSelector.setTitle(getString(R.string.title_none));
 			noneSelector.setSummary(R.string.summary_none);
@@ -198,6 +203,24 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				}
 			});
 			preferenceScreen.addPreference(noneSelector);
+			
+			//setup hide button
+			RadioButtonPreference hidePreference = new RadioButtonPreference(getContext());
+			hidePreference.setTitle(R.string.title_hide);
+			hidePreference.setSummary(R.string.summary_hide);
+			hidePreference.setKey("hide");
+			hidePreference.setOnPreferenceChangeListener((preference, newValue) -> {
+				for (RadioButtonPreference radioButton1 : radioButtons) {
+					radioButton1.setChecked(false);
+				}
+				return true;
+			});
+			hidePreference.setOnPreferenceClickListener(preference -> {
+				getActivity().onBackPressed();
+				return false;
+			});
+			preferenceScreen.addPreference(hidePreference);
+			radioButtons.add(hidePreference);
 			
 			//setup categories
 			Map<String, PreferenceCategory> categoryMap = new TreeMap<>();
