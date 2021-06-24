@@ -38,8 +38,7 @@ It has been developed and tested on `LineageOS 17.1` using `LSPosed`.
 Requirements:
 - `Android 8.1` (`SDK 27`) or higher
 - An working XPosed framework 
-  ([`EdXposed`](https://github.com/ElderDrivers/EdXposed)
-  /[`LSPosed`](https://github.com/LSPosed/LSPosed))
+  ([`EdXposed`](https://github.com/ElderDrivers/EdXposed)/[`LSPosed`](https://github.com/LSPosed/LSPosed))
   with API level `93` or higher
 
 ## Installation
@@ -97,6 +96,9 @@ You want to thank me for my work?
 Currently I don't take donations, 
 but I hate them "`You will have to pay a small fee for all features`" modules anyways.
 
-Just thank me by starring the [GitHub Repo](https://github.com/programminghoch10/MobileIconChanger) and telling your friends.
+Just thank me by starring the 
+[GitHub Repo](https://github.com/programminghoch10/MobileIconChanger) or 
+[thanking me on XDA](https://forum.xda-developers.com/t/mod-xposed-8-1-mobileiconchanger-fake5gicon.4296313/) 
+and telling your friends.
 
 Have a great day!
