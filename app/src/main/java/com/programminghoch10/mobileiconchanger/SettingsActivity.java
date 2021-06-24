@@ -204,6 +204,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				return false;
 			});
 			preferenceScreen.addPreference(noneSelector);
+			radioButtons.add(noneSelector);
 			
 			//setup hide button
 			RadioButtonPreference hidePreference = new RadioButtonPreference(getContext());
@@ -222,6 +223,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			});
 			preferenceScreen.addPreference(hidePreference);
 			radioButtons.add(hidePreference);
+			if (hidePreference.isChecked()) noneSelector.setChecked(false);
 			
 			//setup categories
 			Map<String, PreferenceCategory> categoryMap = new TreeMap<>();
