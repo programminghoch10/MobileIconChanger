@@ -242,6 +242,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			
 			// iterate over icons creating radiobuttons and sorting into categories
 			for (Map.Entry<String, IconProvider.Icon> entry : IconProvider.getIcons().entrySet()) {
+				if (entry.getKey().equals(rootKey)) continue;
 				RadioButtonPreference radioButton = new RadioButtonPreference(context);
 				radioButton.setKey(entry.getKey());
 				radioButton.setTitle(entry.getValue().name);
