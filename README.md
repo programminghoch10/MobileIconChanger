@@ -1,7 +1,7 @@
 # [MobileIconChanger](https://github.com/programminghoch10/MobileIconChanger)
 Change your mobile data icons! For example you can change the 3G/4G icons into 5G!
 
-![logo](logo.png)
+![Logo](logo.png)
 
 This module enables you to replace any of the mobile data icons with any other mobile data icon.
 
@@ -16,7 +16,15 @@ On there a lot of phones called "`Samsung Galaxy S21 Ultra 5G`" get sold for 120
 What one gets is totally useless (obviously),
 but it's funny how the Android on these phones shows `5G`, 
 although the hardware is only capable of `3G`.
-Well it kinda became a meme so here we go.
+
+Then there is `AT&T`. 
+[Marketing is _obviously_ more important](https://www.engadget.com/2019-01-07-att-faux-5g-icon-rolls-out.html) 
+than providing useful information, so they decided to 
+[show a `5Ge` logo on phones connected over `4G+`/`LTE+`](https://www.engadget.com/2018-12-21-att-faux-5g-indicator.html).
+[It even got included into `Android Open Source Project`](https://www.engadget.com/2019-04-26-att-5ge-android-open-source-project.html), 
+so your phone probably has it to.
+
+Well it all kinda became a meme so here we go.
 
 There is also the Magisk module [Fake_5G_icon](https://github.com/E7KMbb/Fake_5G_icon), but I **do not** recommended using it, because live swapping stuff is a job for XPosed and not for Magisk.
 Using this Magisk module has a much higher probability of breaking stuff in wrong ways and it may also prevent other mods from working properly.
