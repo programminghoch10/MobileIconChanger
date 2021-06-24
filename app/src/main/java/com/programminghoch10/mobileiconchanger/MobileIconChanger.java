@@ -71,6 +71,8 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 		Log.d(TAG, "handleInitPackageResources: ");
 		
 		XResources resources = resparam.res;
+		XModuleResources moduleResources = XModuleResources.createInstance(modulePath, resparam.res);
+		
 		String path = (String) XposedHelpers.findField(resources.getClass(), "mResDir").get(resources);
 		ZipFile zipFile = new ZipFile(path);
 		ZipEntry[] iconEntries = zipFile.stream()
@@ -89,6 +91,7 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 		Log.d(TAG, "handleInitPackageResources: file url = " + sharedPreferences.getFile().getPath());
 		Log.d(TAG, "handleInitPackageResources: canread  = " + sharedPreferences.getFile().canRead());
 		if (!sharedPreferences.getFile().canRead()) return;
+		
 		Log.d(TAG, "handleInitPackageResources: entryset=" + sharedPreferences.getAll().size());
 		for (Map.Entry<String, ?> entry : sharedPreferences.getAll().entrySet()) {
 			Log.d(TAG, "handleInitPackageResources: entry " + entry.getKey() + " has value type " + entry.getValue().getClass());
@@ -101,20 +104,19 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 			String iconIdentifier = getResourceNameForIcon((String) entry.getValue());
 			if (icon == null) continue;
 			Log.d(TAG, "handleInitPackageResources: replacing " + key + " with " + icon);
-			XModuleResources moduleResources = XModuleResources.createInstance(modulePath, resparam.res);
 			resources.setReplacement(systemUI, "drawable", key, new XResources.DrawableLoader() {
 				@Override
 				public Drawable newDrawable(XResources res, int id) throws Throwable {
 					Drawable drawable = null;
 					if (icon.startsWith("system_")) {
-						Log.d(TAG, "handleInitPackageResources: replacing " + key + " with system " + iconIdentifier);
 						int resId = resources.getIdentifier(iconIdentifier, "drawable", systemUI);
 						if (resId == Resources.ID_NULL) return null;
+						Log.d(TAG, "handleInitPackageResources: replacing " + key + " with system " + iconIdentifier);
 						drawable = resources.getDrawable(resId);
 					} else {
-						Log.d(TAG, "handleInitPackageResources: replacing " + key + " with module " + icon);
 						int resId = moduleResources.getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
 						if (resId == Resources.ID_NULL) return null;
+						Log.d(TAG, "handleInitPackageResources: replacing " + key + " with module " + icon);
 						drawable = moduleResources.getDrawable(resId);
 					}
 					
