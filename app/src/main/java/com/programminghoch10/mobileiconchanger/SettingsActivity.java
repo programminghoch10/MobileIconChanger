@@ -25,7 +25,7 @@ import java.util.TreeMap;
 
 public class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 	
-	public static final String sharedPreferencesName = "fake5GIcon";
+	public static final String sharedPreferencesName = "mobileIconChanger";
 	private static final String TAG = "MobileIconChanger";
 	private static boolean xposedActive = false;
 	
@@ -239,6 +239,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				String category = entry.getValue().category;
 				if (!categoryMap.containsKey(category)) {
 					PreferenceCategory preferenceCategory = new PreferenceCategory(context);
+					preferenceCategory.setKey(category.replace(" ", "_").toLowerCase());
 					preferenceCategory.setTitle(category);
 					preferenceCategory.setInitialExpandedChildrenCount(0);
 					categoryMap.put(category, preferenceCategory);
