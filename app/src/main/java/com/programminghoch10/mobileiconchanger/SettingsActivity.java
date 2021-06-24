@@ -189,18 +189,19 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(context);
 			
 			//setup none button
-			Preference noneSelector = new Preference(context);
+			RadioButtonPreference noneSelector = new RadioButtonPreference(context);
 			noneSelector.setTitle(getString(R.string.title_none));
 			noneSelector.setSummary(R.string.summary_none);
-			noneSelector.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					for (RadioButtonPreference radioButton : radioButtons) {
-						radioButton.setChecked(false);
-					}
-					getActivity().onBackPressed();
-					return false;
+			noneSelector.setChecked(true);
+			noneSelector.setOnPreferenceChangeListener((preference, newValue) -> {
+				for (RadioButtonPreference radioButton1 : radioButtons) {
+					radioButton1.setChecked(false);
 				}
+				return true;
+			});
+			noneSelector.setOnPreferenceClickListener(preference -> {
+				getActivity().onBackPressed();
+				return false;
 			});
 			preferenceScreen.addPreference(noneSelector);
 			
@@ -259,6 +260,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				category.addPreference(radioButton);
 				if (radioButton.isChecked()) {
 					category.setInitialExpandedChildrenCount(Integer.MAX_VALUE);
+					noneSelector.setChecked(false);
 				}
 			}
 			
