@@ -1,0 +1,19 @@
+<!-- own custom SVG remake of AT&T 5G icon -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20.987654dp"
+    android:height="10dp"
+    android:viewportWidth="510"
+    android:viewportHeight="243">
+    <group>
+        <clip-path android:pathData="M0,0h510v243h-510z" />
+        <path
+            android:fillColor="#ffffff"
+            android:pathData="M279.19,0H101.798L37.292,133H152.698C205.109,142 138.587,228.5 24.19,175L0,224.5C138.083,280 228.794,203.5 228.794,143.5C228.794,96 189.486,90 164.289,90L114.397,90.5L135.059,48C165.8,47.5 144.13,48 211.156,47.5C254.698,41.5 274.654,13.333 279.19,0Z" />
+        <path
+            android:fillColor="#ffffff"
+            android:pathData="M424.832,0.5H510C494.377,44.5 442.47,48 442.47,48H299.852C344.704,4.5 403.834,-0.5 424.832,0.5Z" />
+        <path
+            android:fillColor="#ffffff"
+            android:pathData="M331.299,90H267.297C187.937,259 368.213,265 440.728,216C478.021,141 500.663,90 500.663,90H404.372C370.151,90 354.892,132.5 354.892,132.5H423.661C423.661,132.5 411.152,160 401.073,179C379.403,189 379.488,189 343.696,190.5C285.118,179 311.645,117.833 331.299,90Z" />
+    </group>
+</vector>

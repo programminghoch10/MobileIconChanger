@@ -1,0 +1,16 @@
+<!-- own custom SVG remake of AT&T 5Ge icon -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28.818897dp"
+    android:height="10dp"
+    android:viewportWidth="366"
+    android:viewportHeight="127">
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M52,0H143C143,11.5 118.5,25 111,25H69C65.333,32.333 57.8,46.5 59,46.5L89.5,47C146.5,49 117,156.5 0,117.5L12,91C69.5,120.5 105,75.5 80,69H19.5L52,0Z" />
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M216,0H263C263,10 243,24.5 231.5,24.5C176,24.5 161.069,53 159,77C156.5,106 196.5,102 208,93L218.5,69H184.5C190.422,57.63 193.742,51.256 208,47.5H259L229,112C171,143 127.316,122 129.5,80.5C131,52 157.5,0 216,0Z" />
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M306,47H366L359,61H319L310,79H344L337.5,93H304L295,111L341,111.5L335,125H269L306,47Z" />
+</vector>
