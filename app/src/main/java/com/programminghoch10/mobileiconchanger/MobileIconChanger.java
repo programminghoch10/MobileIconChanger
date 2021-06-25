@@ -149,8 +149,10 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 				
 				//get sharedPreferences of module
 				Context context = AndroidAppHelper.currentApplication().createPackageContext(BuildConfig.APPLICATION_ID, Context.CONTEXT_IGNORE_SECURITY);
+				Log.d(TAG, "beforeHookedMethod: context = "+context);
 				if (context == null) return;
 				SharedPreferences sharedPreferences = new RemotePreferences(context, BuildConfig.APPLICATION_ID + ".PreferencesProvider", "systemIcons", true);
+				Log.d(TAG, "beforeHookedMethod: sharedPreferences="+sharedPreferences);
 				if (sharedPreferences == null) return;
 				
 				//gather available system icons for replacement
