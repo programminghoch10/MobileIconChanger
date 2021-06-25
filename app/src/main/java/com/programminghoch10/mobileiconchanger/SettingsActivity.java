@@ -84,7 +84,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				iconPreference.setKey(icon.getKey());
 				iconPreference.setIcon(icon.getValue().drawable);
 				iconPreference.setPersistent(true);
-				iconPreference.setPreview(getDrawableFromString(icon.getKey()));
+				iconPreference.setPreview(getDrawableFromString(getSelected(icon.getKey())));
 				iconPreference.setFragment(IconFragment.class.getName());
 				iconCategory.addPreference(iconPreference);
 			}
@@ -131,8 +131,8 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			for (Map.Entry<String, IconProvider.Icon> entry : IconProvider.getSystemIcons().entrySet()) {
 				IconPreference preference = findPreference(entry.getKey());
 				if (preference == null) continue;
-				preference.setPreview(getDrawableFromString(entry.getKey()));
 				String selectedKey = getSelected(entry.getKey());
+				preference.setPreview(getDrawableFromString(selectedKey));
 				preference.setSummary(null);
 				preference.setValue(selectedKey);
 				if (selectedKey == null) continue;
@@ -147,14 +147,13 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			}
 		}
 		
-		private Drawable getDrawableFromString(String key) {
-			String icon = getSelected(key);
+		private Drawable getDrawableFromString(String icon) {
 			if (icon == null) return null;
 			if (icon.startsWith("system_")) return IconProvider.getSystemIcons().get(icon).drawable;
 			if (icon.equals("hide")) return null;
 			int id = getContext().getResources().getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
 			if (id == Resources.ID_NULL) return null;
-			Log.d(TAG, "getPreview: generated preview for key=" + key + " icon=" + icon);
+			Log.d(TAG, "getPreview: generated preview for icon=" + icon);
 			return ResourcesCompat.getDrawable(getContext().getResources(), id, getContext().getTheme());
 		}
 		
@@ -167,6 +166,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				Map.Entry<String, Boolean> boolEntry = (Map.Entry<String, Boolean>) entry;
 				if (boolEntry.getValue()) icon = boolEntry.getKey();
 			}
+			if (icon != null) Log.d(TAG, "getSelected: key=" + key + " selected=" + icon);
 			return icon;
 		}
 		
@@ -200,6 +200,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			RadioButtonPreference noneSelector = new RadioButtonPreference(context);
 			noneSelector.setTitle(getString(R.string.title_none));
 			noneSelector.setSummary(R.string.summary_none);
+			noneSelector.setKey("none");
 			noneSelector.setChecked(true);
 			noneSelector.setOnPreferenceChangeListener((preference, newValue) -> {
 				for (RadioButtonPreference radioButton1 : radioButtons) {
@@ -275,6 +276,17 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 					noneSelector.setChecked(false);
 				}
 			}
+			
+			// remove old unused entries from sharedPreferences
+			SharedPreferences sharedPreferences = context.getSharedPreferences(sharedPreferencesName + "-" + rootKey, Context.MODE_PRIVATE);
+			for (Map.Entry<String, ?> entry : sharedPreferences.getAll().entrySet()) {
+				String key = entry.getKey();
+				if (key.equals("hide")) continue;
+				if (key.equals("none")) continue;
+				if (radioButtons.stream().anyMatch(n -> n.getKey().equals(key))) continue;
+				sharedPreferences.edit().remove(key).apply();
+			}
+			
 			
 			setPreferenceScreen(preferenceScreen);
 		}
