@@ -9,10 +9,10 @@
     <string name="xposed_inactive">XPosed is not available. \n
         Please ensure it\'s working and is activated for this module. \n
         If you think this is wrong, force close the app in the app settings or restart your device.</string>
-    <string name="change_notice">The icon %s will be replaced by the %s icon %s.</string>
-    <string name="hidden_notice">The icon %s will be hidden.</string>
-    <string name="title_iconNotice">Change icon %s</string>
-    <string name="summary_iconNotice">Choose what icon to replace the icon %s with.</string>
+    <string name="change_notice">The icon %1$s will be replaced by the %2$s icon %3$s.</string>
+    <string name="hidden_notice">The icon %1$s will be hidden.</string>
+    <string name="title_iconNotice">Change icon %1$s</string>
+    <string name="summary_iconNotice">Choose what icon to replace the icon %1$s with.</string>
     <string name="title_replacements">Icon Replacements</string>
     <string name="summary_replacements">Here you can select each icon and what to replace it with.</string>
     <string name="category_title_icons">Icons</string>

@@ -172,11 +172,11 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				IconProvider.Icon systemIcon = IconProvider.getSystemIcons().get(entry.getKey());
 				if (systemIcon == null) continue;
 				if (selectedKey.equals("hide")) {
-					preference.setSummary(String.format(getString(R.string.hidden_notice), systemIcon.name));
+					preference.setSummary(getString(R.string.hidden_notice, systemIcon.name));
 				}
 				IconProvider.Icon icon = IconProvider.getIcons().get(selectedKey);
 				if (icon == null) continue;
-				preference.setSummary(String.format(getString(R.string.change_notice), systemIcon.name, icon.category, icon.name));
+				preference.setSummary(getString(R.string.change_notice, systemIcon.name, icon.category, icon.name));
 			}
 		}
 		
@@ -224,8 +224,8 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			//setup change icon notice
 			String iconName = IconProvider.getSystemIcons().get(rootKey).name;
 			Preference iconNotice = new Preference(context);
-			iconNotice.setTitle(String.format(getString(R.string.title_iconNotice), iconName));
-			iconNotice.setSummary(String.format(getString(R.string.summary_iconNotice), iconName));
+			iconNotice.setTitle(getString(R.string.title_iconNotice, iconName));
+			iconNotice.setSummary(getString(R.string.summary_iconNotice, iconName));
 			iconNotice.setSelectable(false);
 			preferenceScreen.addPreference(iconNotice);
 			
