@@ -1,15 +1,28 @@
 # MobileIconChanger
 Change your mobile data icons! For example you can change the 3G/4G icons into 5G!
 
-![Logo Custom 5G](logo.png)
+![Screenshot 5G Logo](pictures/screenshot_5g_logo.png)
 
-This module enables you to replace any of the mobile data icons with any other mobile data icon, from you system, other android versions and even some custom ones.
+This module enables you to replace any of the mobile data icons with any other mobile data icon, from you system, other android versions and even a lot of custom ones.
 
-![Screenshot 5G](screenshot_5g.png)
-![Screenshot Custom 6G](screenshot_custom_6g.png)
+![Screenshot 9G](pictures/screenshot_9g.png)
 
-This module contains local copies of all mobile data icons available in `LineageOS 18.1` / `Android 11`. 
-Although before `Android 10` a `5G` icon was not included in the OS, using one is possible with this module.
+Here's a list of icons selectable as replacements:
+* All icons from `Android 11`
+* All icons present on your system
+* Some icons from `Android 4.2 (Jellybean)`
+* All icons from `Android 5 (Lollipop)`
+* All icons added in `Android 7 (Nougat)`
+* [Custom icons](#screenshots) _(handcrafted SVG remakes or self drawn)_:
+    * Several `5G` icons
+    * The [official `5G` promotional logo](https://en.wikipedia.org/wiki/5G)
+    * [`AT&T`'s variant of the `5G` icon](https://about.att.com/ecms/dam/pages/5G/5G_blue_logo_768x575_featured.jpg)
+    * [`AT&T`'s variant of the fake `5Ge` icon](https://cdn.arstechnica.net/wp-content/uploads/2019/02/att-5ge-commercial-800x468.jpg)
+    * Several `6G` icons
+    * Several `7G` icons
+    * Several `9G` icons
+    * A `10G` icon
+    * Several `XG` icons
 
 ## Inspiration
 Well there sadly is a thing called "Wish.com".
@@ -73,7 +86,7 @@ Here is how to open the settings:
     - Open up an ADB shell
     - Run command `am start-activity com.programminghoch10.mobileiconchanger/.SettingsActivity`
 
-**Additional notes:**
+### Additional notes:
 
 The icons listed are all the icons your system has for showing a mobile data connection. 
 Just because the system has them, does not mean it uses them. 
@@ -86,8 +99,22 @@ Since this module hard-relinks the icon resources, a `SystemUI` restart is neces
 Conveniently there is a button for that right at the bottom. 
 You will need to give the app root access for this operation.
 
-![Screenshot Icon Overview](screenshot_icon_overview.png)
-![Screenshot Icon Selector](screenshot_icon_selector.png)
+All icons from the Android Open Source Project contain a license notice within their icon file.
+All custom icons included in this module are **selfmade** SVG remakes and are **NOT** direct copies. 
+Just had a feeling I might have to say that.
+
+## Screenshots
+
+![Screenshot 5G+](pictures/screenshot_5g_plus.png)
+![Screenshot 5G Logo](pictures/screenshot_5g_logo.png)
+![Screenshot AT&T 5Ge](pictures/screenshot_att_5ge.png)
+![Screenshot 9G](pictures/screenshot_9g.png)
+![Screenshot 10G](pictures/screenshot_10G.png)
+
+![Screenshot Icon Overview](pictures/screenshot_icon_overview.png)
+![Screenshot Icon Selector](pictures/screenshot_icon_selector.png)
+![Screenshot Icon Selector Custom Icons](pictures/screenshot_icon_selector_custom_icons.png)
+
 
 ## Thank me
 
