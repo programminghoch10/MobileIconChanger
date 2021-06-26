@@ -54,6 +54,13 @@ Requirements:
   ([`EdXposed`](https://github.com/ElderDrivers/EdXposed)/[`LSPosed`](https://github.com/LSPosed/LSPosed))
   with API level `93` or higher
 
+## Downloads
+
+You can currently download the module from the
+[LSPosed Repository](https://github.com/Xposed-Modules-Repo/com.programminghoch10.mobileiconchanger)
+or from the project's 
+[GitHub Releases](https://github.com/programminghoch10/MobileIconChanger/releases).
+
 ## Installation
 
 1. Install the module on a system which furfills the [module requirements](#compatibility).
