@@ -116,7 +116,7 @@ Just had a feeling I might have to say that.
 ![Screenshot 5G Logo](pictures/screenshot_5g_logo.png)
 ![Screenshot AT&T 5Ge](pictures/screenshot_att_5ge.png)
 ![Screenshot 9G](pictures/screenshot_9g.png)
-![Screenshot 10G](pictures/screenshot_10G.png)
+![Screenshot 10G](pictures/screenshot_10g.png)
 
 ![Screenshot Icon Overview](pictures/screenshot_icon_overview.png)
 ![Screenshot Icon Selector](pictures/screenshot_icon_selector.png)
