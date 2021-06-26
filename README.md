@@ -57,7 +57,8 @@ Requirements:
 ## Downloads
 
 You can currently download the module from the
-[LSPosed Repository](https://github.com/Xposed-Modules-Repo/com.programminghoch10.mobileiconchanger)
+[LSPosed Repository](https://github.com/Xposed-Modules-Repo/com.programminghoch10.mobileiconchanger),
+[XPosed Repository](https://repo.xposed.info/module/com.programminghoch10.mobileiconchanger)
 or from the project's 
 [GitHub Releases](https://github.com/programminghoch10/MobileIconChanger/releases).
 
