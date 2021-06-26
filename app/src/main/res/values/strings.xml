@@ -25,5 +25,9 @@
     <string name="summary_hide">Replace this icon with an empty version.</string>
     <string name="title_noIcons">No Icons found!</string>
     <string name="summary_noIcons">This usually will fix itself upon reboot.\nJust reboot now. You got the time. C\'mon do it. Just do it.</string>
+    <string name="title_replaceColor">Change Color</string>
+    <string name="summary_replaceColor">Enable this to overwrite the color of the icon.\nThe icon will not automatically adjust to dark mode anymore.</string>
+    <string name="title_color">Icon Color</string>
+    <string name="summary_color">The color will only be applied for icons set for replacement.\nYou can replace an icon with itself to only apply the color.</string>
 
 </resources>

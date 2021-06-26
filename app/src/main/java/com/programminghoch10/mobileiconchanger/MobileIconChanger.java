@@ -10,6 +10,7 @@ import android.content.res.XResources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -94,6 +95,8 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 		Log.d(TAG, "handleInitPackageResources: canread  = " + sharedPreferences.getFile().canRead());
 		if (!sharedPreferences.getFile().canRead()) return;
 		
+		boolean replaceColor = sharedPreferences.getBoolean("replaceColor", false);
+		int color = sharedPreferences.getInt("color", 0);
 		Log.d(TAG, "handleInitPackageResources: entryset=" + sharedPreferences.getAll().size());
 		for (Map.Entry<String, ?> entry : sharedPreferences.getAll().entrySet()) {
 			Log.d(TAG, "handleInitPackageResources: entry " + entry.getKey() + " has value type " + entry.getValue().getClass());
@@ -123,7 +126,9 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 						drawable = moduleResources.getDrawable(resId);
 					}
 					
-					//drawable.setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_IN);
+					if (replaceColor) {
+						drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+					}
 					
 					return drawable;
 				}
@@ -149,10 +154,10 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 				
 				//get sharedPreferences of module
 				Context context = AndroidAppHelper.currentApplication().createPackageContext(BuildConfig.APPLICATION_ID, Context.CONTEXT_IGNORE_SECURITY);
-				Log.d(TAG, "beforeHookedMethod: context = "+context);
+				Log.d(TAG, "beforeHookedMethod: context = " + context);
 				if (context == null) return;
 				SharedPreferences sharedPreferences = new RemotePreferences(context, BuildConfig.APPLICATION_ID + ".PreferencesProvider", "systemIcons", true);
-				Log.d(TAG, "beforeHookedMethod: sharedPreferences="+sharedPreferences);
+				Log.d(TAG, "beforeHookedMethod: sharedPreferences=" + sharedPreferences);
 				if (sharedPreferences == null) return;
 				
 				//gather available system icons for replacement

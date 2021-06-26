@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +18,9 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
+import androidx.preference.SwitchPreference;
+
+import com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -68,6 +73,9 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 	}
 	
 	public static class SettingsFragment extends PreferenceFragmentCompat implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+		boolean replaceColor = false;
+		int color = Color.BLACK;
+		
 		@SuppressLint("WorldReadableFiles")
 		@Override
 		public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -111,6 +119,22 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			});
 			((PreferenceCategory) getPreferenceManager().findPreference("systemui")).addPreference(restartSystemUIPreference);
 			
+			//setup colors
+			SwitchPreference replaceColorPreference = findPreference("replaceColor");
+			replaceColorPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+				replaceColor = (boolean) newValue;
+				updatePreferences();
+				return true;
+			});
+			replaceColor = replaceColorPreference.isChecked();
+			ColorPreferenceCompat colorPreference = findPreference("color");
+			colorPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+				color = (int) newValue;
+				updatePreferences();
+				return true;
+			});
+			color = colorPreference.getValue();
+			
 			//updatePreferences();
 		}
 		
@@ -132,7 +156,16 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				IconPreference preference = findPreference(entry.getKey());
 				if (preference == null) continue;
 				String selectedKey = getSelected(entry.getKey());
-				preference.setPreview(getDrawableFromString(selectedKey));
+				Drawable drawable = getDrawableFromString(selectedKey);
+				if (drawable != null) {
+					if (replaceColor) {
+						drawable = drawable.getConstantState().newDrawable().mutate();
+						drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+					} else {
+						drawable.clearColorFilter();
+					}
+				}
+				preference.setPreview(drawable);
 				preference.setSummary(null);
 				preference.setValue(selectedKey);
 				if (selectedKey == null) continue;
@@ -252,7 +285,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			
 			// iterate over icons creating radiobuttons and sorting into categories
 			for (Map.Entry<String, IconProvider.Icon> entry : IconProvider.getIcons().entrySet()) {
-				if (entry.getKey().equals(rootKey)) continue;
+				//if (entry.getKey().equals(rootKey)) continue;
 				RadioButtonPreference radioButton = new RadioButtonPreference(context);
 				radioButton.setKey(entry.getKey());
 				radioButton.setTitle(entry.getValue().name);

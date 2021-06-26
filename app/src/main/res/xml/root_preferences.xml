@@ -9,6 +9,20 @@
         app:title="@string/category_title_icons" />
 
     <PreferenceCategory
+        app:key="colorCategory"
+        app:title="Color">
+        <SwitchPreference
+            app:key="replaceColor"
+            app:summary="@string/summary_replaceColor"
+            app:title="@string/title_replaceColor" />
+        <com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat
+            app:dependency="replaceColor"
+            app:key="color"
+            app:summary="@string/summary_color"
+            app:title="@string/title_color" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
         app:key="systemui"
         app:title="@string/category_title_systemui" />
 
