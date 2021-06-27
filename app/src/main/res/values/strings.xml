@@ -6,9 +6,11 @@
     </string-array>
     <string name="title_activity_settings">MobileIconChanger Settings</string>
 
-    <string name="xposed_inactive">XPosed is not available. \n
-        Please ensure it\'s working and is activated for this module. \n
-        If you think this is wrong, force close the app in the app settings or restart your device.</string>
+    <string name="xposed_inactive">XPosed is not available.\nPlease ensure it\'s working and is activated for this module.\nIf you think this is wrong, click refresh or restart your device.</string>
+    <string name="xposed_nohook">SystemUI is not hooked properly.\nCheck if the activation scope is correctly set and restart SystemUI or reboot your device.</string>
+    <string name="xposed_nores">SystemUI Resources are not hooked properly.\nDid you enable the resource hooks?\nRestart SystemUI or reboot your device.</string>
+    <string name="xposed_nohook_app">Restart the app to check again.</string>
+    <string name="title_restartApp">Refresh</string>
     <string name="change_notice">The icon %1$s will be replaced by the %2$s icon %3$s.</string>
     <string name="hidden_notice">The icon %1$s will be hidden.</string>
     <string name="title_iconNotice">Change icon %1$s</string>

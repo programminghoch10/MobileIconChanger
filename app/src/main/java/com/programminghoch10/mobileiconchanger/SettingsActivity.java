@@ -1,7 +1,9 @@
 package com.programminghoch10.mobileiconchanger;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -9,6 +11,9 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +30,7 @@ import com.kizitonwose.colorpreferencecompat.ColorPreferenceCompat;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -34,6 +40,34 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 	private static final String TAG = "MobileIconChanger";
 	private static boolean xposedActive = false;
 	
+	private static boolean restartSystemUI() {
+		Log.i(TAG, "onClick: Trying to restart SystemUI");
+		return killProcess("com.android.systemui");
+	}
+	
+	private static boolean killProcess(String processName) {
+		Log.d(TAG, "killProcess: killing process " + processName);
+		try {
+			Process process = Runtime.getRuntime().exec("su -c killall " + processName);
+			return process.waitFor() == 0;
+		} catch (IOException | InterruptedException ignored) {
+			return false;
+		}
+	}
+	
+	private static boolean restartApp(Activity activity) {
+		Log.d(TAG, "restartApp: restarting app");
+		if (activity == null) {
+			return killProcess(BuildConfig.APPLICATION_ID);
+		}
+		//activity.recreate();
+		// recreate does not work properly, restarting the old way does work
+		Intent intent = activity.getIntent();
+		activity.finishAndRemoveTask();
+		activity.startActivity(intent);
+		return killProcess(BuildConfig.APPLICATION_ID);
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -42,10 +76,8 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			//TODO: fix back button in action bar not working
 			//actionBar.setDisplayHomeAsUpEnabled(true);
 		}
-		if (!xposedActive) {
-			setContentView(R.layout.settings_activity_noxposed);
-			return;
-		}
+		Log.d(TAG, "onCreate: starting " + SettingsActivity.class.getSimpleName() + " locale=" + Locale.getDefault());
+		if (!checkState()) return;
 		IconProvider.collectIcons(this);
 		IconProvider.tintAllIcons(getColor(R.color.iconTint));
 		setContentView(R.layout.settings_activity);
@@ -70,6 +102,51 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 				.addToBackStack(null)
 				.commit();
 		return true;
+	}
+	
+	/* returns false if info screen is shown */
+	private boolean checkState() {
+		Log.d(TAG, "checkState: xposedActive=" + xposedActive);
+		if (!xposedActive) {
+			setContentView(R.layout.settings_activity_noxposed);
+			setInfoScreen(true, false, false, false, true);
+			return false;
+		}
+		SharedPreferences sharedPreferences = getSharedPreferences("systemIcons", MODE_PRIVATE);
+		boolean packageHookActive = sharedPreferences.getBoolean("packageHookActive", false);
+		boolean resourceHookStage1 = sharedPreferences.getBoolean("resourceHookStage1", false);
+		boolean resourceHookStage2 = sharedPreferences.getBoolean("resourceHookStage2", false);
+		boolean resourceHookStage3 = sharedPreferences.getBoolean("resourceHookStage3", false);
+		Log.d(TAG, "checkState: packageHookActive=" + packageHookActive);
+		Log.d(TAG, "checkState: resourceHookStage1=" + resourceHookStage1);
+		Log.d(TAG, "checkState: resourceHookStage2=" + resourceHookStage2);
+		Log.d(TAG, "checkState: resourceHookStage3=" + resourceHookStage3);
+		if (!packageHookActive) {
+			setContentView(R.layout.settings_activity_noxposed);
+			setInfoScreen(false, true, false, true, true);
+			return false;
+		}
+		if (!resourceHookStage1) {
+			setContentView(R.layout.settings_activity_noxposed);
+			setInfoScreen(false, false, true, true, true);
+			return false;
+		}
+		return true;
+	}
+	
+	private void setInfoScreen(boolean showXposedInactive, boolean showHookInactive, boolean showResInactive, boolean showRestartSystemUI, boolean showRestartApp) {
+		TextView xposed = findViewById(R.id.text_xposedinactive);
+		TextView hook = findViewById(R.id.text_xposednohooks);
+		TextView res = findViewById(R.id.text_xposednores);
+		Button systemui = findViewById(R.id.button_restartsystemui);
+		Button app = findViewById(R.id.button_restartapp);
+		xposed.setVisibility(showXposedInactive ? View.VISIBLE : View.GONE);
+		hook.setVisibility(showHookInactive ? View.VISIBLE : View.GONE);
+		res.setVisibility(showResInactive ? View.VISIBLE : View.GONE);
+		systemui.setVisibility(showRestartSystemUI ? View.VISIBLE : View.GONE);
+		app.setVisibility(showRestartApp ? View.VISIBLE : View.GONE);
+		systemui.setOnClickListener(v -> restartSystemUI());
+		app.setOnClickListener(v -> restartApp(SettingsActivity.this));
 	}
 	
 	public static class SettingsFragment extends PreferenceFragmentCompat implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
@@ -108,15 +185,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			Preference restartSystemUIPreference = new Preference(getContext());
 			restartSystemUIPreference.setTitle(getString(R.string.title_systemui));
 			restartSystemUIPreference.setSummary(getString(R.string.summary_systemui));
-			restartSystemUIPreference.setOnPreferenceClickListener(preference -> {
-				Log.i(TAG, "onClick: Trying to restart SystemUI");
-				try {
-					Runtime.getRuntime().exec("su -c killall com.android.systemui");
-					return true;
-				} catch (IOException ignored) {
-					return false;
-				}
-			});
+			restartSystemUIPreference.setOnPreferenceClickListener(preference -> restartSystemUI());
 			((PreferenceCategory) getPreferenceManager().findPreference("systemui")).addPreference(restartSystemUIPreference);
 			
 			//setup colors

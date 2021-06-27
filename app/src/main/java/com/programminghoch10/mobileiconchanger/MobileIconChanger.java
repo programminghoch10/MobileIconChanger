@@ -38,6 +38,9 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 	private static final String systemUI = "com.android.systemui";
 	private static final Map<String, Drawable> systemIcons = new HashMap<>();
 	private static String modulePath = null;
+	private static boolean resourceHookStage1 = false;
+	private static boolean resourceHookStage2 = false;
+	private static boolean resourceHookStage3 = false;
 	
 	public static Bitmap drawableToBitmap(Drawable drawable) {
 		if (drawable == null) return null;
@@ -71,7 +74,8 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 	@Override
 	public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
 		if (!resparam.packageName.equals(systemUI)) return;
-		Log.d(TAG, "handleInitPackageResources: ");
+		Log.d(TAG, "handleInitPackageResources: Stage1");
+		resourceHookStage1 = true;
 		
 		XResources resources = resparam.res;
 		XModuleResources moduleResources = XModuleResources.createInstance(modulePath, resparam.res);
@@ -89,6 +93,9 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 			Drawable drawable = resources.getDrawable(drawableID);
 			systemIcons.put(key, drawable);
 		}
+		
+		Log.d(TAG, "handleInitPackageResources: Stage2");
+		resourceHookStage2 = true;
 		
 		XSharedPreferences sharedPreferences = new XSharedPreferences(BuildConfig.APPLICATION_ID, SettingsActivity.sharedPreferencesName);
 		Log.d(TAG, "handleInitPackageResources: file url = " + sharedPreferences.getFile().getPath());
@@ -108,32 +115,42 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 			String icon = (String) entry.getValue();
 			String iconIdentifier = getResourceNameForIcon((String) entry.getValue());
 			if (icon == null) continue;
-			Log.d(TAG, "handleInitPackageResources: replacing " + key + " with " + icon);
-			resources.setReplacement(systemUI, "drawable", key, new XResources.DrawableLoader() {
-				@Override
-				public Drawable newDrawable(XResources res, int id) throws Throwable {
-					if (icon.equals("hide")) return new ColorDrawable(Color.TRANSPARENT);
-					Drawable drawable = null;
-					if (icon.startsWith("system_")) {
-						int resId = resources.getIdentifier(iconIdentifier, "drawable", systemUI);
-						if (resId == Resources.ID_NULL) return null;
-						Log.d(TAG, "handleInitPackageResources: replacing " + key + " with system " + iconIdentifier);
-						drawable = resources.getDrawable(resId);
-					} else {
-						int resId = moduleResources.getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
-						if (resId == Resources.ID_NULL) return null;
-						Log.d(TAG, "handleInitPackageResources: replacing " + key + " with module " + icon);
-						drawable = moduleResources.getDrawable(resId);
+			Log.d(TAG, "handleInitPackageResources: replacing " + key + " with " + iconIdentifier);
+			try {
+				resources.setReplacement(systemUI, "drawable", key, new XResources.DrawableLoader() {
+					@Override
+					public Drawable newDrawable(XResources res, int id) throws Throwable {
+						if (icon.equals("hide")) return new ColorDrawable(Color.TRANSPARENT);
+						Drawable drawable = null;
+						if (icon.startsWith("system_")) {
+							int resId = resources.getIdentifier(iconIdentifier, "drawable", systemUI);
+							if (resId == Resources.ID_NULL) {
+								Log.w(TAG, "newDrawable: failed to load resource=" + iconIdentifier + " from resources=" + resources);
+								return null;
+							}
+							Log.d(TAG, "handleInitPackageResources: replacing " + key + " with system " + iconIdentifier);
+							drawable = resources.getDrawable(resId);
+						} else {
+							int resId = moduleResources.getIdentifier(icon, "drawable", BuildConfig.APPLICATION_ID);
+							if (resId == Resources.ID_NULL) {
+								Log.w(TAG, "newDrawable: failed to load resource=" + iconIdentifier + " from moduleResources=" + moduleResources);
+								return null;
+							}
+							Log.d(TAG, "handleInitPackageResources: replacing " + key + " with module " + icon);
+							drawable = moduleResources.getDrawable(resId);
+						}
+						if (replaceColor) {
+							drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+						}
+						return drawable;
 					}
-					
-					if (replaceColor) {
-						drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-					}
-					
-					return drawable;
-				}
-			});
+				});
+			} catch (Resources.NotFoundException e) {
+				Log.e(TAG, "handleInitPackageResources: failed replacing icon " + iconIdentifier);
+			}
 		}
+		Log.d(TAG, "handleInitPackageResources: Stage3 (done)");
+		resourceHookStage3 = true;
 	}
 	
 	@Override
@@ -166,7 +183,7 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 				ZipEntry[] iconEntries = zipFile.stream()
 						.filter(e -> e.getName().startsWith("res/drawable/ic_") && e.getName().endsWith("mobiledata.xml"))
 						.toArray(ZipEntry[]::new);
-				Log.d(TAG, "handleInitPackageResources: systemicons=" + Arrays.toString(iconEntries));
+				Log.d(TAG, "beforeHookedMethod: systemicons=" + Arrays.toString(iconEntries));
 				
 				//save icons in sharedPreferences
 				SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -177,7 +194,11 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 					String icon = IconProvider.BitMapToString(bitmap);
 					editor.putString(key, icon);
 				}
-				editor.commit();
+				editor.putBoolean("packageHookActive", true);
+				editor.putBoolean("resourceHookStage1", resourceHookStage1);
+				editor.putBoolean("resourceHookStage2", resourceHookStage2);
+				editor.putBoolean("resourceHookStage3", resourceHookStage3);
+				Log.d(TAG, "beforeHookedMethod: commit=" + editor.commit());
 			}
 		});
 	}
