@@ -1,13 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/text_xposedinactive"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/xposed_inactive" />
+
+    <TextView
+        android:id="@+id/text_xposednohooks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/xposed_nohook" />
+
+    <TextView
+        android:id="@+id/text_xposednores"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/xposed_nores" />
+
+    <Button
+        android:id="@+id/button_restartsystemui"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/title_systemui" />
+
+    <Button
+        android:id="@+id/button_restartapp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/title_restartApp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
 </LinearLayout>
