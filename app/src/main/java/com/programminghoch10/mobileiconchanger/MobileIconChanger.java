@@ -34,7 +34,7 @@ import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class MobileIconChanger implements IXposedHookInitPackageResources, IXposedHookLoadPackage, IXposedHookZygoteInit {
-	private static final String TAG = MobileIconChanger.class.getName();
+	private static final String TAG = MobileIconChanger.class.getCanonicalName();
 	private static final String systemUI = "com.android.systemui";
 	private static final Map<String, Drawable> systemIcons = new HashMap<>();
 	private static String modulePath = null;
