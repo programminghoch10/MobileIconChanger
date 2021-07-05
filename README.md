@@ -45,7 +45,11 @@ Using this Magisk module has a much higher probability of breaking stuff in wron
 
 ## Compatibility
 
-This mod is very universal and thus should work on most devices.
+This mod should work on any AOSP-near ROM.
+
+If your device has network activity indicators, it probably will not work.
+Many ROMs use custom indicators, which are not supported as of now.
+
 It has been developed and tested on `LineageOS 17.1` using `LSPosed`.
 
 Requirements:
@@ -65,7 +69,7 @@ or from the project's
 ## Installation
 
 1. Install the module on a system which furfills the [module requirements](#compatibility).
-1. Activate the resource hooks within your XPosed framework manager.
+1. **Activate the resource hooks** within your XPosed framework manager.
 1. Activate the module. The package `SystemUI` should automatically be selected.
 1. Restart your phone.  
    _This is necessary as the module will scan for icons to replace when `SystemUI` initializes._  
