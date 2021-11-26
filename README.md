@@ -84,9 +84,8 @@ Here is how to open the settings:
 
 - Route 1:
     - Go to the module list within your XPosed manager
-    - Long press on `CameraControl` and select App Info
-    - On the bottom, click on `Advanced`
-    - Click on `Additional settings in the app`
+    - Long press on `CameraControl`
+    - Select `Module settings`
 - Route 2:
     - Go into device settings
     - Click on apps
