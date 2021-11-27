@@ -84,13 +84,13 @@ Here is how to open the settings:
 
 - Route 1:
     - Go to the module list within your XPosed manager
-    - Long press on `CameraControl`
+    - Long press on `MobileIconChanger`
     - Select `Module settings`
 - Route 2:
     - Go into device settings
     - Click on apps
     - Somehow tell the device to show all apps
-    - Select `CameraControl`
+    - Select `MobileIconChanger`
     - On the bottom, click on `Advanced`
     - Click on `Additional settings in the app`
 - Route 3:
