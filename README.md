@@ -73,7 +73,7 @@ or from the project's
 1. Activate the module. The package `SystemUI` should automatically be selected.
 1. Restart your phone.  
    _This is necessary as the module will scan for icons to replace when `SystemUI` initializes._  
-   _If you need to do it without restart: Open the configuration screen, click on `Restart SystemUI`, then force-close the module from the app settings before opening the configuration screen again._ 
+   _If you prefer to do it without restarting: Open the configuration screen and click on `Restart SystemUI`._ 
 1. You are now ready to use the module. You will need to open the [Configuration](#configuration) screen to set it all up, as the module won't do anything yet.
 
 ## Configuration

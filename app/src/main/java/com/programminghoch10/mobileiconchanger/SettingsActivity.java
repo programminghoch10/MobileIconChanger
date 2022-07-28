@@ -1,7 +1,6 @@
 package com.programminghoch10.mobileiconchanger;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -147,7 +146,10 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 		res.setVisibility(showResInactive ? View.VISIBLE : View.GONE);
 		systemui.setVisibility(showRestartSystemUI ? View.VISIBLE : View.GONE);
 		app.setVisibility(showRestartApp ? View.VISIBLE : View.GONE);
-		systemui.setOnClickListener(v -> restartSystemUI());
+		systemui.setOnClickListener(v -> {
+			if (restartSystemUI())
+				restartApp();
+		});
 		app.setOnClickListener(v -> restartApp());
 	}
 	
