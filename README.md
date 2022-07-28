@@ -48,9 +48,9 @@ Using this Magisk module has a much higher probability of breaking stuff in wron
 This mod should work on any AOSP-near ROM.
 
 If your device has network activity indicators, it probably will not work.
-Many ROMs use custom indicators, which are not supported as of now.
+Many ROMs use custom indicators, which are not supported.
 
-It has been developed and tested on `LineageOS 17.1` using `LSPosed`.
+It has been developed and tested on `LineageOS` using `LSPosed`.
 
 Requirements:
 - `Android 8.1` (`SDK 27`) or higher
@@ -69,7 +69,6 @@ or from the project's
 ## Installation
 
 1. Install the module on a system which furfills the [module requirements](#compatibility).
-1. **Activate the resource hooks** within your XPosed framework manager.
 1. Activate the module. The package `SystemUI` should automatically be selected.
 1. Restart your phone.  
    _This is necessary as the module will scan for icons to replace when `SystemUI` initializes._  
@@ -87,11 +86,7 @@ Here is how to open the settings:
     - Long press on `MobileIconChanger`
     - Select `Module settings`
 - Route 2:
-    - Go into device settings
-    - Click on apps
-    - Somehow tell the device to show all apps
-    - Select `MobileIconChanger`
-    - On the bottom, click on `Advanced`
+    - Find your way into the App-Info screen of `MobileIconChanger`
     - Click on `Additional settings in the app`
 - Route 3:
     - Open up an ADB shell
