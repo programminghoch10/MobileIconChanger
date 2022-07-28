@@ -34,7 +34,7 @@ import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class MobileIconChanger implements IXposedHookInitPackageResources, IXposedHookLoadPackage, IXposedHookZygoteInit {
-	private static final String TAG = MobileIconChanger.class.getCanonicalName();
+	private static final String TAG = "MobileIconChanger";
 	private static final String systemUI = "com.android.systemui";
 	private static final Map<String, Drawable> systemIcons = new HashMap<>();
 	private static String modulePath = null;
@@ -156,6 +156,7 @@ public class MobileIconChanger implements IXposedHookInitPackageResources, IXpos
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
 		if (lpparam.packageName.equals(BuildConfig.APPLICATION_ID)) {
+			Log.d(TAG, "handleLoadPackage: hooking own package");
 			XposedHelpers.setStaticBooleanField(XposedHelpers.findClass(SettingsActivity.class.getName(), lpparam.classLoader), "xposedActive", true);
 		}
 		if (!lpparam.packageName.equals(systemUI)) return;

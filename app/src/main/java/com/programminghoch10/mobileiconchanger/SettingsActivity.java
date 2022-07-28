@@ -46,6 +46,11 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 	}
 	
 	private static boolean killProcess(String processName) {
+		if (processName.equals(BuildConfig.APPLICATION_ID)) {
+			Log.d(TAG, "killProcess: killing own process using pid");
+			android.os.Process.killProcess(android.os.Process.myPid());
+			return true;
+		}
 		Log.d(TAG, "killProcess: killing process " + processName);
 		try {
 			Process process = Runtime.getRuntime().exec("su -c killall " + processName);
@@ -55,16 +60,13 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 		}
 	}
 	
-	private static boolean restartApp(Activity activity) {
+	private boolean restartApp() {
 		Log.d(TAG, "restartApp: restarting app");
-		if (activity == null) {
-			return killProcess(BuildConfig.APPLICATION_ID);
-		}
 		//activity.recreate();
 		// recreate does not work properly, restarting the old way does work
-		Intent intent = activity.getIntent();
-		activity.finishAndRemoveTask();
-		activity.startActivity(intent);
+		Intent intent = getIntent();
+		finishAndRemoveTask();
+		startActivity(intent);
 		return killProcess(BuildConfig.APPLICATION_ID);
 	}
 	
@@ -146,7 +148,7 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 		systemui.setVisibility(showRestartSystemUI ? View.VISIBLE : View.GONE);
 		app.setVisibility(showRestartApp ? View.VISIBLE : View.GONE);
 		systemui.setOnClickListener(v -> restartSystemUI());
-		app.setOnClickListener(v -> restartApp(SettingsActivity.this));
+		app.setOnClickListener(v -> restartApp());
 	}
 	
 	public static class SettingsFragment extends PreferenceFragmentCompat implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
